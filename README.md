@@ -24,7 +24,7 @@
     - [x] coin creation
     - [x] buying currency
     - [x] sending money with coins and without coins
-    - [ ] purchase of products
+    - [] purchase of products
   - Enterprise
     - [] creating coins for the company
     - [] creation of products that can only be purchased by selected currencies
