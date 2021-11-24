@@ -9,6 +9,9 @@ export interface IUser extends Document {
   totalcoins: Array<string>;
   moneyincoins: number;
   transactions: Array<string>;
+  ownerenterprise: Array<string>;
+  employeeEnterprise: string;
+  products: Array<string>;
   creditsocial: string;
   _doc: object;
 }
@@ -19,10 +22,13 @@ const userSchema: Schema = new Schema(
     age: { type: Number, required: true },
     cpf: { type: String, required: true },
     password: { type: String, required: [true, 'please password'] },
-    moneyoutcoins: { type: Number, required: true },
+    moneyoutcoins: { type: Number, default: 0 },
     moneyincoins: { type: Number },
     totalcoins: [{ type: String }],
-    transactions: [{ type: String, ref: 'transaction' }],
+    transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
+    ownerenterprise: [{ type: Schema.Types.ObjectId, ref: 'enterprise' }],
+    employeeEnterprise: { type: Schema.Types.ObjectId, ref: 'enterprise' },
+    products: [{ type: Schema.Types.ObjectId, ref: 'product' }],
     creditsocial: { type: String, default: 'negative kkkkkkkkkkkkkkkkkkkkk' },
   },
   {

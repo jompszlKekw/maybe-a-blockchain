@@ -219,11 +219,6 @@ export class CoinController {
 
     return res.status(200).json({ msg: 'create coin success', newCoin });
   }
-  public async getMyCoins(req: Request, res: Response) {
-    const myCoins = await Wallet.find({ currentowner: req.user.id });
-
-    return res.status(200).json({ myCoins });
-  }
   public async myCoinAvaibleForPurchase(req: Request, res: Response) {
     const { _id, codingforbuy, privatekey }: IWallet = req.body;
 
@@ -316,26 +311,25 @@ export class CoinController {
     if (coinExists.hash !== hash) throw new AppError('hash not found', 404);
 
     if (coinExists.currentowner !== req.user.id)
-      throw new AppError('moeda nn é sua nn doidao');
+      throw new AppError('this coin is not yours');
 
-    if (!codingforbuy) throw new AppError('favor add um codingforbuy');
+    if (!codingforbuy) throw new AppError('please put the confirmforbuy');
 
     if (coinExists.codingforbuy !== codingforbuy)
       throw new AppError('coding for buy not found', 404);
 
     const transactionExists = await Transaction.findOne({ codingconfirm });
 
-    if (!transactionExists)
-      throw new AppError('codingconfirm nao foi encontrado', 404);
+    if (!transactionExists) throw new AppError('codingconfirm not found', 404);
 
     if (transactionExists.confirmbuy === true)
-      throw new AppError('moeda ja foi negociada');
+      throw new AppError('currency has already been traded');
 
-    if (!confirmbuy) throw new AppError('ai nada acontece ne filhao');
+    if (!confirmbuy) throw new AppError('please put a confirmbuy');
 
-    const anyupdate = Math.random() * 9999999999;
-    const publick = Math.random() * 9999999999;
-    const privatek = Math.random() * 9999999999;
+    const anyupdate = Math.random() * 9999999997;
+    const publick = Math.random() * 9999999998;
+    const privatek = Math.random() * 9999999991;
 
     const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
     const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
@@ -348,7 +342,7 @@ export class CoinController {
           $inc: { index: 1 },
           $push: { prevHash: hash, transactions: transactionExists._id },
           hash: hashCoin,
-          currentowener: transactionExists.payer,
+          currentowner: transactionExists.payer,
           avaibleforpurchase: false,
           publickey: publicKey,
           privatekey: privateKey,
@@ -401,7 +395,7 @@ export class CoinController {
         coin: _id,
       });
       return res.status(200).json({
-        msg: 'nenhuma transaçao foi feita',
+        msg: 'no transactions were made',
         newBlock: updateWallet,
         newTransaction: updateTransaction,
       });
@@ -412,15 +406,16 @@ export class CoinController {
 
     const payeeExists = await User.findOne({ name: name });
 
-    if (!payeeExists) throw new AppError('usuario nao encontrado', 404);
+    if (!payeeExists) throw new AppError('payee not found', 404);
 
     const walletransactionExists = await Wallet.findById(_id);
 
-    if (!walletransactionExists)
-      throw new AppError('moeda nao encontrada', 404);
+    if (!walletransactionExists) throw new AppError('coin not found', 404);
 
     if (walletransactionExists.amount < amount)
-      throw new AppError('dinheiro maior que tem na moeda');
+      throw new AppError(
+        "there's more money you actually have in the currency"
+      );
 
     const transactionExists = await Transaction.findOne({ coin: _id });
 
@@ -467,7 +462,7 @@ export class CoinController {
       { new: true }
     );
     return res.status(200).json({
-      msg: 'dinheiro enviado',
+      msg: 'money sent',
       updatePayer,
       updatePayee,
       coinpayer,
@@ -479,10 +474,10 @@ export class CoinController {
 
     const payeeExists = await User.findOne({ name: name });
 
-    if (!payeeExists) throw new AppError('usuario nao encontrado', 404);
+    if (!payeeExists) throw new AppError('payee not found', 404);
 
     if (req.user.moneyoutcoins < amount)
-      throw new AppError('tem mais dinheiro ai que vc realmente tem');
+      throw new AppError("there's more money there that you really have");
 
     const newTransaction = new Transaction({
       amount,
@@ -512,7 +507,7 @@ export class CoinController {
     );
 
     return res.status(200).json({
-      msg: 'dinheiro enviado',
+      msg: 'money sent',
       updatePayer,
       updatePayee,
       newTransaction,

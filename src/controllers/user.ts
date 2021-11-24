@@ -4,12 +4,14 @@ import { sign } from 'jsonwebtoken';
 
 import { IUser, User } from '../models/anyuser';
 import { AppError } from '../config/AppErrors';
+import { Product } from '../models/product';
+import { Wallet } from '../models/wallet';
 
 export class UserController {
   public async createuser(req: Request, res: Response) {
     const { name, age, password, moneyoutcoins, cpf }: IUser = req.body;
 
-    const nameExists = await User.findOne({ name });
+    const nameExists = await User.findOne({ name: name, cpf: cpf });
     if (nameExists) throw new AppError('name exists, add any word');
 
     const passhash = await hash(password, 12);
@@ -35,7 +37,7 @@ export class UserController {
     const isMatch = await compare(password, user.password);
     if (!isMatch) throw new AppError('password incorrect');
 
-    const token = sign({ id: user.id }, `${process.env.TOKEN_SECRET}`, {
+    const token = sign({ id: user._id }, `${process.env.TOKEN_SECRET}`, {
       expiresIn: '1d',
     });
 
@@ -44,5 +46,15 @@ export class UserController {
       user: { ...user._doc, password: '' },
       token,
     });
+  }
+  public async getMyCoins(req: Request, res: Response) {
+    const myCoins = await Wallet.find({ currentowner: req.user.id });
+
+    return res.status(200).json({ myCoins });
+  }
+  public async searchMyProductsUser(req: Request, res: Response) {
+    const all = await Product.find({ proprietor: req.user.id });
+
+    return res.status(200).json(all);
   }
 }

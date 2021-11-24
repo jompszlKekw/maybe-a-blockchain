@@ -3,6 +3,7 @@ import { Document, model, Schema } from 'mongoose';
 
 export interface ITransaction extends Document {
   coin: string;
+  product: string;
   amount: number;
   payer: string;
   payee: string;
@@ -14,7 +15,8 @@ export interface ITransaction extends Document {
 
 const transactionSchema: Schema = new Schema(
   {
-    coin: { type: String, ref: 'wallet' },
+    coin: { type: Schema.Types.ObjectId, ref: 'wallet' },
+    product: { type: Schema.Types.ObjectId, ref: 'product' },
     amount: { type: Number, required: true, default: '0' },
     payer: { type: String, required: true, default: 'xx' },
     payee: { type: String, required: true, default: 'xx' },
