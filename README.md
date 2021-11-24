@@ -20,6 +20,7 @@
   - ExpressJs version - v4.17.1
 
 ## Features
+ #####(Eu vou adicionar mais recursos quando eu tiver mais ideias)
   - Peoples
     - [x] coin creation
     - [x] buying currency
