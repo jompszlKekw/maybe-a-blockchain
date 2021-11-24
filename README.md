@@ -24,10 +24,10 @@
     - [x] coin creation
     - [x] buying currency
     - [x] sending money with coins and without coins
-    - [] purchase of products
+    - [x] purchase of products
   - Enterprise
     - [] creating coins for the company
-    - [] creation of products that can only be purchased by selected currencies
+    - [x] creation of products that can only be purchased by selected currencies
     - [] hiring of employees
     - [] delivery of coins by tasks done to employees
   - in the future
