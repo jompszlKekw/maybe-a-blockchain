@@ -12,7 +12,7 @@
  <p>in this project I wanted to make a "blockchain", but maybe it didn't come out the best way, or I didn't quite understand how a blockchain works.</p>
  
 ## How to project work
-  <p>People and companies (the creation of the company will soon come out) can create coins, and each currency can have a goal or a way to spend it on products (not yet created) differently. They can make transactions and exchange currencies.</p>
+  <p>People and companies can create coins, each currency can have a goal or a way to spend it on products differently. They can make transactions and exchange currencies.</p>
 
 ## Technologies
   - Node.js version - v14.17.4
