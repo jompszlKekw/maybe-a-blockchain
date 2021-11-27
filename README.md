@@ -31,6 +31,7 @@
     - [x] creation of products that can only be purchased by selected currencies
     - [x] hiring of employees
     - [] delivery of coins by tasks done to employees
+    - [x] automatic payment
   - in the future
     - [] tests
     - [] mining of new currencies 
