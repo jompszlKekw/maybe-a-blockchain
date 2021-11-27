@@ -5,6 +5,7 @@ import { CoinController } from './controllers/coin';
 import { EmployeeController } from './controllers/employee';
 import { EnterpriseController } from './controllers/enterprise';
 import { ProductController } from './controllers/product';
+import { TaskEmployee } from './controllers/task';
 
 import { authUser, authEnterprise } from './middleware/auth';
 import {
@@ -19,6 +20,7 @@ const coinController = new CoinController();
 const enterpriseController = new EnterpriseController();
 const productController = new ProductController();
 const employeeController = new EmployeeController();
+const taskController = new TaskEmployee();
 
 routes.post('/newuser', validRegisterUser, userController.createuser);
 routes.post('/loginuser', userController.login);
@@ -29,6 +31,12 @@ routes.post(
   '/serarchmyproductsuser',
   authUser,
   userController.searchMyProductsUser
+);
+
+routes.put(
+  '/takeCurrencyOutOfTheMarket',
+  authUser,
+  userController.takeCurrencyOutOfTheMarket
 );
 
 /**------------------------------------------------------------------------------------- */
@@ -49,6 +57,12 @@ routes.put(
   coinController.sendMoneyWithMoneyOutCoins
 );
 
+routes.post(
+  '/createcoinenterprise',
+  authEnterprise,
+  coinController.createCoinEnterprise
+);
+
 /**------------------------------------------------------------------------------------- */
 routes.post(
   '/registerenterprise',
@@ -58,7 +72,7 @@ routes.post(
 );
 routes.post('/loginenterprise', enterpriseController.login);
 
-routes.post(
+routes.get(
   '/searchmyproductsenterprise',
   authEnterprise,
   enterpriseController.searchMyProductsEnterprise
@@ -76,11 +90,7 @@ routes.post(
   authEnterprise,
   productController.createProduct
 );
-routes.get(
-  '/searchmyproductsenterprise',
-  authEnterprise,
-  productController.searchProducts
-);
+routes.get('/searchmyproducts', productController.searchProducts);
 
 routes.put('/buyproduct', authUser, productController.buyProduct);
 
@@ -107,5 +117,23 @@ routes.get(
 );
 
 routes.put('/hirespeople', authEnterprise, employeeController.hiresPeople);
+
+/**------------------------------------------------------------------------------------- */
+
+routes.post('/newtask', authEnterprise, taskController.newTask);
+
+routes.get('/getmytasks', authUser, taskController.getMyTasks);
+routes.get(
+  '/taskfrommycompany',
+  authEnterprise,
+  taskController.getTasksFromMyCompany
+);
+
+routes.put('/task100numbers', authUser, taskController.taskOfTyping100Numbers);
+routes.put(
+  '/task1000words',
+  authUser,
+  taskController.taskOfMakingATextWithMoreThan1000Words
+);
 
 export { routes };

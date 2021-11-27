@@ -50,10 +50,15 @@ export class UserController {
   public async getMyCoins(req: Request, res: Response) {
     const myCoins = await Wallet.find({ currentowner: req.user.id });
 
+    if (!myCoins)
+      throw new AppError("it seems that you don't have any currency");
+
     return res.status(200).json({ myCoins });
   }
   public async searchMyProductsUser(req: Request, res: Response) {
     const all = await Product.find({ proprietor: req.user.id });
+
+    if (!all) throw new AppError("it seems that you don't have any products");
 
     return res.status(200).json(all);
   }
@@ -71,9 +76,9 @@ export class UserController {
 
     switch (change) {
       case change === true && findCoin.avaibleforpurchase === true:
-        throw new AppError('esta moeda ja esta no disponivel no mercado');
+        throw new AppError('this currency is already on the market');
       case change === false && findCoin.avaibleforpurchase === false:
-        throw new AppError('esta moeda ja nao esta no mercado');
+        throw new AppError('this currency is not on the market');
       case change === true && findCoin.avaibleforpurchase === false:
         await Wallet.findByIdAndUpdate(
           { _id: _id },
@@ -83,7 +88,7 @@ export class UserController {
 
         return res
           .status(200)
-          .json({ msg: 'esta moeda agora esta disponivel no mercado' });
+          .json({ msg: 'this currency is now available on the market' });
       case change === false && findCoin.avaibleforpurchase === true:
         await Wallet.findByIdAndUpdate(
           { _id: _id },
@@ -92,7 +97,7 @@ export class UserController {
         );
 
         return res.status(200).json({
-          msg: 'esta moeda agora nao esta mais disponivel no mercado',
+          msg: 'this currency is no longer available on the market',
         });
 
       default:

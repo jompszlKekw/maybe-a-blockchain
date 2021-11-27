@@ -78,6 +78,9 @@ export class EnterpriseController {
       sold: false,
     });
 
+    if (!all)
+      throw new AppError("it seems that you haven't produced any products");
+
     return res.status(200).json(all);
   }
   public async changeOpenForHiring(req: Request, res: Response) {

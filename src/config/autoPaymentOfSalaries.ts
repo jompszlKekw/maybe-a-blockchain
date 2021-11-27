@@ -14,8 +14,6 @@ import { User } from '../models/user';
  */
 
 (async (): Promise<void> => {
-  console.log('chego aq');
-
   const strToday = JSON.stringify(new Date());
 
   const [Year, Month, day] = strToday.split('-');
@@ -62,10 +60,8 @@ import { User } from '../models/user';
   }
 
   if (findDateEmployee.length > 1) {
-    console.log('deu setInterval');
-    setInterval(paymentOfSalaries, 2000000);
+    setInterval(paymentOfSalaries, 200000);
   } else if (findDateEmployee.length === 1) {
-    console.log('não precisou');
     const findEmployees = await Employee.findOne({ nextsalary: formatDate });
 
     if (!findEmployees) return;

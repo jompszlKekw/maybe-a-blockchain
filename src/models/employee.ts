@@ -16,8 +16,8 @@ const employeeSchema: Schema = new Schema(
     },
     employee: [
       {
-        id: { type: Schema.Types.ObjectId, ref: 'user' },
-        name: { type: String },
+        employeeid: { type: Schema.Types.ObjectId, ref: 'user' },
+        employeename: { type: String },
       },
     ],
     salary: { type: Number },

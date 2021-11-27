@@ -7,6 +7,7 @@ import { ICoinCreator, CreatorCoin } from './../models/coinCreator';
 import { IWallet, Wallet } from '../models/wallet';
 
 import { AppError } from '../config/AppErrors';
+import { Enterprise } from '../models/enterprise';
 
 type WT = {
   privatekey: string;
@@ -28,7 +29,7 @@ export class CoinController {
     const { namecoin, objectivecoin }: ICoinCreator = req.body;
 
     const nameCoinExists = await CreatorCoin.findOne({ namecoin: namecoin });
-    if (nameCoinExists) throw new AppError('Coin alredy exists');
+    if (nameCoinExists) throw new AppError('name coin alredy exists');
 
     const NameHash = createHash('md5').update(`${namecoin}`).digest('hex');
     const valuecoin = Math.floor(Math.random() * 100000);
@@ -41,7 +42,7 @@ export class CoinController {
       );
 
     if (req.user.moneyoutcoins < 50000)
-      throw new AppError('voce nao tem dinheiro suficiente para pagar a taxa');
+      throw new AppError("you don't have enough money to pay the fee");
 
     const newCoin = new CreatorCoin({
       namecreator: req.user.name,
@@ -257,6 +258,9 @@ export class CoinController {
     const allcoins = await Wallet.find({ avaibleforpurchase: true }).select(
       '-amount -index -prevHash -currentowner -transactions -privatekey'
     );
+
+    if (!allcoins)
+      throw new AppError("looks like it doesn't have any currency available");
 
     return res.status(200).json(allcoins);
   }
@@ -517,5 +521,77 @@ export class CoinController {
       updatePayee,
       newTransaction,
     });
+  }
+  public async createCoinEnterprise(req: Request, res: Response) {
+    const { namecoin, objectivecoin } = req.body;
+
+    const nameCoinExists = await CreatorCoin.findOne({
+      namecoin: namecoin,
+    });
+
+    if (nameCoinExists) throw new AppError('name Coin alredy exist');
+
+    const nameHash = createHash('md5').update(`${namecoin}`).digest('hex');
+
+    const objcoin = await CreatorCoin.find({ objectivecoin: objectivecoin });
+
+    if (objcoin.length > 2)
+      throw new AppError(
+        'there are already many coins created for the same purpose'
+      );
+
+    if (req.enterprise.moneyoutcoins < 100000)
+      throw new AppError(
+        "your company doesn't have enough money to pay the fee"
+      );
+
+    const newCoin = new CreatorCoin({
+      namecreator: req.enterprise.name,
+      namecoin,
+      namecoinhash: nameHash,
+      objectivecoin,
+      currentmarketvalue: 2000,
+    });
+
+    await newCoin.save();
+
+    for (let i = 0; i < 90; i++) {
+      const anyupdate = Math.random() * 99999999958;
+      const publick = Math.random() * 9999999997;
+      const privatek = Math.random() * 9999999996;
+
+      const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+
+      // const keypair = generateKeyPairSync('rsa', {
+      //   modulusLength: 2048,
+      //   publicKeyEncoding: { type: 'spki', format: 'pem' },
+      //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+      // })
+
+      const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
+      const privateKey = createHash('sha256')
+        .update(`${privatek}`)
+        .digest('hex');
+
+      const newWallet = new Wallet({
+        amount: 2000,
+        hash: `${nameHash}.${hashCoin.digest('hex')}`,
+        currentowner: req.enterprise.id,
+        publickey: publicKey,
+        privatekey: privateKey,
+      });
+
+      await newWallet.save();
+
+      await Enterprise.findByIdAndUpdate(
+        { _id: req.enterprise._id },
+        {
+          $push: { coins: newWallet._id },
+          $inc: { moneyoutcoins: -100000, moneyincoins: newWallet.amount },
+        }
+      );
+    }
+
+    return res.status(201).json({ msg: 'create coin success', newCoin });
   }
 }

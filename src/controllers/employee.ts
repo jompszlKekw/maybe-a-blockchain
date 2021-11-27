@@ -21,6 +21,9 @@ export class EmployeeController {
   public async searchOpenForHiring(req: Request, res: Response) {
     const all = await Enterprise.find({ openforhiring: true });
 
+    if (!all)
+      throw new AppError("it seems like there's no open company for hiring");
+
     return res.status(200).json(all);
   }
   public async hiringRequest(req: Request, res: Response) {
@@ -28,10 +31,10 @@ export class EmployeeController {
 
     const enterpriseExist = await Enterprise.findById({ _id: _id });
 
-    if (!enterpriseExist) throw new AppError('empresa nao encontrada');
+    if (!enterpriseExist) throw new AppError('enterprise not found', 404);
 
     if (enterpriseExist.openforhiring === false)
-      throw new AppError('esta empresa nao esta aberta para contrataçao');
+      throw new AppError('this company is not open for hiring');
 
     const hRequestUserExist = await HiringRequest.findOne({
       sender: req.user.id,
@@ -39,7 +42,7 @@ export class EmployeeController {
     });
 
     if (hRequestUserExist)
-      throw new AppError('voce ja mandou um curriculo para esta empresa');
+      throw new AppError('have you ever submitted a resume to this company');
 
     const hashforHiring = createHash('md5')
       .update(`${req.user.id}`)
@@ -59,6 +62,8 @@ export class EmployeeController {
   public async searchForHiringRequest(req: Request, res: Response) {
     const allReq = await HiringRequest.find({ addressee: req.enterprise.id });
 
+    if (!allReq) throw new AppError('it seems like it has no hiring request');
+
     return res.status(200).json(allReq);
   }
   public async hiresPeople(req: Request, res: Response) {
@@ -69,11 +74,11 @@ export class EmployeeController {
     if (!employeeExist) throw new AppError('employee not exist');
 
     if (employeeExist.employeeEnterprise)
-      throw new AppError('usuario ja esta trabalhando em uma empresa');
+      throw new AppError('that same person is already working in a company');
 
     const enterpriseExists = await Enterprise.findOne({ employees: _id });
 
-    if (enterpriseExists) throw new AppError('user ja contratado');
+    if (enterpriseExists) throw new AppError('user already hired');
 
     const hashExist = await HiringRequest.findOne({
       hashforhiring: hashforhiring,
@@ -94,7 +99,7 @@ export class EmployeeController {
     }
 
     if (hashExist.addressee !== req.enterprise._id)
-      throw new AppError('parece que esta vaga nao é para a sua empresa');
+      throw new AppError('it seems that this vacancy is not for your company');
 
     let month = new Date().getUTCMonth() + 2;
     let year = new Date().getUTCFullYear();
