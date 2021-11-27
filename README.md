@@ -32,6 +32,7 @@
     - [] hiring of employees
     - [] delivery of coins by tasks done to employees
   - in the future
+    - [] tests
     - [] mining of new currencies 
     - [] integration with socket.io
     - [] maybe a front-end
