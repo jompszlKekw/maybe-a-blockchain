@@ -29,7 +29,7 @@
   - Enterprise
     - [] ?creating coins for the company?
     - [x] creation of products that can only be purchased by selected currencies
-    - [] hiring of employees
+    - [x] hiring of employees
     - [] delivery of coins by tasks done to employees
   - in the future
     - [] tests
