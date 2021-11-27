@@ -27,7 +27,7 @@
     - [x] sending money with coins and without coins
     - [x] purchase of products
   - Enterprise
-    - [] ?creating coins for the company?
+    - [x] creating coins for the company
     - [x] creation of products that can only be purchased by selected currencies
     - [x] hiring of employees
     - [x] delivery of coins by tasks done to employees
