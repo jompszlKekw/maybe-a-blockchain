@@ -90,9 +90,9 @@ export class EnterpriseController {
 
     switch (change) {
       case change === true && findEnterprise.openforhiring === true:
-        throw new AppError('a empresa ja esta aberta para contrataçoes');
+        throw new AppError('the company is already open for hiring');
       case change === false && findEnterprise.openforhiring === false:
-        throw new AppError('a empresa nao esta aberta para contrataçoes ja');
+        throw new AppError('the company is no longer open for hiring');
       case change === true && findEnterprise.openforhiring === false:
         await Enterprise.findOneAndUpdate(
           { _id: req.enterprise.id },
@@ -102,7 +102,7 @@ export class EnterpriseController {
 
         return res
           .status(200)
-          .json({ msg: 'a empresa agora esta aberta para fazer contrataçoes' });
+          .json({ msg: 'the company is now open to making hires' });
       case change === false && findEnterprise.openforhiring === true:
         await Enterprise.findOneAndUpdate(
           { _id: req.enterprise.id },
@@ -112,7 +112,7 @@ export class EnterpriseController {
 
         return res
           .status(200)
-          .json({ msg: 'a empresa agora esta fechada para contrataçoes' });
+          .json({ msg: 'the company is now closed for hiring' });
       default:
         throw new AppError('internal server error', 500);
     }
