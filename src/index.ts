@@ -1,4 +1,5 @@
 import './config/database';
+import './config/autoPaymentOfSalaries';
 import { app } from './app';
 
 const PORT = 7683;

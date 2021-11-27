@@ -2,6 +2,7 @@ import { Schema, Document, model } from 'mongoose';
 
 export interface ICoinCreator extends Document {
   namecreator: string;
+  nameEnterprise: string;
   namecoin: string;
   namecoinhash: string;
   objectivecoin: string;
@@ -12,6 +13,7 @@ export interface ICoinCreator extends Document {
 const coinCreatorSchema: Schema = new Schema(
   {
     namecreator: { type: String, ref: 'user' },
+    nameEnterprise: { type: String, ref: 'enterprise' },
     namecoin: { type: String, required: true },
     namecoinhash: { type: String, required: true },
     objectivecoin: { type: String },

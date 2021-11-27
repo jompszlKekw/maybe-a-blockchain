@@ -2,14 +2,15 @@ import { Router } from 'express';
 
 import { UserController } from './controllers/user';
 import { CoinController } from './controllers/coin';
+import { EmployeeController } from './controllers/employee';
+import { EnterpriseController } from './controllers/enterprise';
+import { ProductController } from './controllers/product';
 
 import { authUser, authEnterprise } from './middleware/auth';
 import {
   validRegisterEnterprise,
   validRegisterUser,
 } from './middleware/validRegister';
-import { EnterpriseController } from './controllers/enterprise';
-import { ProductController } from './controllers/product';
 
 const routes = Router();
 
@@ -17,6 +18,7 @@ const userController = new UserController();
 const coinController = new CoinController();
 const enterpriseController = new EnterpriseController();
 const productController = new ProductController();
+const employeeController = new EmployeeController();
 
 routes.post('/newuser', validRegisterUser, userController.createuser);
 routes.post('/loginuser', userController.login);
@@ -30,7 +32,7 @@ routes.post(
 );
 
 /**------------------------------------------------------------------------------------- */
-routes.post('/createcoin', authUser, coinController.createCoin);
+routes.post('/createcoin', authUser, coinController.createCoinUser);
 
 routes.put('/mcafp', authUser, coinController.myCoinAvaibleForPurchase);
 routes.get('/searchcoin', authUser, coinController.searchCoinForPurchase);
@@ -62,6 +64,12 @@ routes.post(
   enterpriseController.searchMyProductsEnterprise
 );
 
+routes.put(
+  '/changeOpenForHiring',
+  authEnterprise,
+  enterpriseController.changeOpenForHiring
+);
+
 /**------------------------------------------------------------------------------------- */
 routes.post(
   '/registernewproduct',
@@ -81,5 +89,23 @@ routes.delete(
   authEnterprise,
   productController.deleteProduct
 );
+
+/**------------------------------------------------------------------------------------- */
+
+routes.get(
+  '/searchopenforhiring',
+  authUser,
+  employeeController.searchOpenForHiring
+);
+
+routes.post('/hiringrequest', authUser, employeeController.hiringRequest);
+
+routes.get(
+  '/searchforhiringrequest',
+  authEnterprise,
+  employeeController.searchForHiringRequest
+);
+
+routes.put('/hirespeople', authEnterprise, employeeController.hiresPeople);
 
 export { routes };

@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
-import { AppError } from '../config/AppErrors';
-import { IUser, User } from '../models/anyuser';
+
+import { IUser, User } from '../models/user';
 import { Enterprise, IEnterprise } from '../models/enterprise';
+
+import { AppError } from '../config/AppErrors';
 
 interface TokenPayload {
   id?: string;

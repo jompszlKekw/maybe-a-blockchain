@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { connect } from 'mongoose';
 
-const uri = process.env.mongodbUrl;
+const uri = process.env.MONGODBURL;
 
 try {
   connect(`${uri}`);

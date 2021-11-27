@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { IUser } from '../models/anyuser';
+import { IUser } from '../models/user';
 import { IEnterprise } from '../models/enterprise';
 
 export async function validRegisterUser(

@@ -1,7 +1,8 @@
 import 'express-async-errors';
-import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+
 import { AppError } from './config/AppErrors';
 
 import { routes } from './routes';

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
+import { createHash } from 'crypto';
+
+import { Transaction } from '../models/transaction';
+import { User } from '../models/user';
 import { ICoinCreator, CreatorCoin } from './../models/coinCreator';
 import { IWallet, Wallet } from '../models/wallet';
 
 import { AppError } from '../config/AppErrors';
-
-import { createHash } from 'crypto';
-import { Transaction } from '../models/transaction';
-import { User } from '../models/anyuser';
 
 type WT = {
   privatekey: string;
@@ -24,11 +24,11 @@ type SendMoney = {
 };
 
 export class CoinController {
-  public async createCoin(req: Request, res: Response) {
+  public async createCoinUser(req: Request, res: Response) {
     const { namecoin, objectivecoin }: ICoinCreator = req.body;
 
-    const nameCoinExists = await CreatorCoin.findOne({ namecoin });
-    if (nameCoinExists) throw new AppError('User alredy exists');
+    const nameCoinExists = await CreatorCoin.findOne({ namecoin: namecoin });
+    if (nameCoinExists) throw new AppError('Coin alredy exists');
 
     const NameHash = createHash('md5').update(`${namecoin}`).digest('hex');
     const valuecoin = Math.floor(Math.random() * 100000);
@@ -39,6 +39,9 @@ export class CoinController {
       throw new AppError(
         'there are already many coins created for the same purpose'
       );
+
+    if (req.user.moneyoutcoins < 50000)
+      throw new AppError('voce nao tem dinheiro suficiente para pagar a taxa');
 
     const newCoin = new CreatorCoin({
       namecreator: req.user.name,
@@ -87,7 +90,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount },
+            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
           },
           { new: true }
         );
@@ -128,7 +131,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount },
+            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
           },
           { new: true }
         );
@@ -169,7 +172,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount },
+            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
           },
           { new: true }
         );
@@ -210,7 +213,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount },
+            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
           },
           { new: true }
         );
@@ -222,7 +225,7 @@ export class CoinController {
   public async myCoinAvaibleForPurchase(req: Request, res: Response) {
     const { _id, codingforbuy, privatekey }: IWallet = req.body;
 
-    const coinExist = await Wallet.findOne({ _id });
+    const coinExist = await Wallet.findOne({ _id: _id });
 
     if (!coinExist) throw new AppError('coin not exists');
 
@@ -260,7 +263,7 @@ export class CoinController {
   public async bidCoin(req: Request, res: Response) {
     const { publickey, codingforbuy, amount }: IWallet = req.body;
 
-    const coinExists = await Wallet.findOne({ publickey });
+    const coinExists = await Wallet.findOne({ publickey: publickey });
 
     if (!coinExists) throw new AppError('coin not found', 404);
 
@@ -318,7 +321,9 @@ export class CoinController {
     if (coinExists.codingforbuy !== codingforbuy)
       throw new AppError('coding for buy not found', 404);
 
-    const transactionExists = await Transaction.findOne({ codingconfirm });
+    const transactionExists = await Transaction.findOne({
+      codingconfirm: codingconfirm,
+    });
 
     if (!transactionExists) throw new AppError('codingconfirm not found', 404);
 
@@ -408,7 +413,7 @@ export class CoinController {
 
     if (!payeeExists) throw new AppError('payee not found', 404);
 
-    const walletransactionExists = await Wallet.findById(_id);
+    const walletransactionExists = await Wallet.findById({ _id: _id });
 
     if (!walletransactionExists) throw new AppError('coin not found', 404);
 

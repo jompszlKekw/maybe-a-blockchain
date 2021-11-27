@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
+import { createHash } from 'crypto';
+
+import { IWallet, Wallet } from '../models/wallet';
+import { Transaction } from '../models/transaction';
+import { User } from '../models/user';
 import { IProduct, Product } from './../models/product';
 import { CreatorCoin } from '../models/coinCreator';
 import { Enterprise } from '../models/enterprise';
 
 import { AppError } from '../config/AppErrors';
-import { IWallet, Wallet } from '../models/wallet';
-import { Transaction } from '../models/transaction';
-import { createHash } from 'crypto';
-import { User } from '../models/anyuser';
 
 export class ProductController {
   public async createProduct(req: Request, res: Response) {

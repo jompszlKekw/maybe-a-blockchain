@@ -1,12 +1,12 @@
-import { compare, hash } from 'bcrypt';
 import { Request, Response } from 'express';
+import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 
-import { IUser, User } from '../models/anyuser';
-import { AppError } from '../config/AppErrors';
+import { IUser, User } from '../models/user';
 import { Product } from '../models/product';
 import { Wallet } from '../models/wallet';
 
+import { AppError } from '../config/AppErrors';
 export class UserController {
   public async createuser(req: Request, res: Response) {
     const { name, age, password, moneyoutcoins, cpf }: IUser = req.body;
@@ -31,7 +31,7 @@ export class UserController {
   public async login(req: Request, res: Response) {
     const { name, password }: IUser = req.body;
 
-    const user = await User.findOne({ name });
+    const user = await User.findOne({ name: name });
     if (!user) throw new AppError('name is incorrect');
 
     const isMatch = await compare(password, user.password);
@@ -56,5 +56,47 @@ export class UserController {
     const all = await Product.find({ proprietor: req.user.id });
 
     return res.status(200).json(all);
+  }
+  public async takeCurrencyOutOfTheMarket(req: Request, res: Response) {
+    const { change, _id } = req.body;
+
+    const findCoin = await Wallet.findOne({
+      _id: _id,
+      currentowner: req.user.id,
+    });
+
+    if (!findCoin) throw new AppError('Coin not found', 404);
+
+    if (change !== Boolean) throw new AppError('true or false');
+
+    switch (change) {
+      case change === true && findCoin.avaibleforpurchase === true:
+        throw new AppError('esta moeda ja esta no disponivel no mercado');
+      case change === false && findCoin.avaibleforpurchase === false:
+        throw new AppError('esta moeda ja nao esta no mercado');
+      case change === true && findCoin.avaibleforpurchase === false:
+        await Wallet.findByIdAndUpdate(
+          { _id: _id },
+          { avaibleforpurchase: true },
+          { new: true }
+        );
+
+        return res
+          .status(200)
+          .json({ msg: 'esta moeda agora esta disponivel no mercado' });
+      case change === false && findCoin.avaibleforpurchase === true:
+        await Wallet.findByIdAndUpdate(
+          { _id: _id },
+          { avaibleforpurchase: false },
+          { new: true }
+        );
+
+        return res.status(200).json({
+          msg: 'esta moeda agora nao esta mais disponivel no mercado',
+        });
+
+      default:
+        throw new AppError('internal server error', 500);
+    }
   }
 }

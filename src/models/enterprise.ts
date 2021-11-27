@@ -13,6 +13,7 @@ export interface IEnterprise extends Document {
   transactions: Array<string>;
   tasks: Array<string>;
   employees: Array<string>;
+  openforhiring: boolean;
   _doc: object;
 }
 
@@ -34,7 +35,8 @@ const enterpriseSchema: Schema = new Schema(
     ],
     transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
     tasks: [{ type: Schema.Types.ObjectId, ref: 'task' }],
-    employees: [{ type: Schema.Types.ObjectId, ref: 'user' }],
+    employees: [{ type: Schema.Types.ObjectId, ref: 'employee' }],
+    openforhiring: { type: Boolean, required: true, default: false },
   },
   {
     timestamps: true,
