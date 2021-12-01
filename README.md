@@ -8,10 +8,11 @@
 * [Technologies](#Technologies)
 * [Features](#Features)
 * [Application Flow](#Application-Flow)
+    <p>me falta ingles para escrever sobre oque a aplicação faz, entõa /p>
   * Auto
     * [auto Payment Of Salaries](#auto-payment-of-salaries)
     * [currency Value Update](#currency-value-update) 
-    ###### ( Need to create and log in to do anything in the application )
+    <p> ( Need to create and log in to do anything in the application ) </p>
    * User 
      * [Coin](#coin)
        * [make coin](#make-coin)
@@ -77,7 +78,6 @@
     - [] mining of new currencies 
     - [] integration with socket.io
     - [] maybe a front-end
-
-## 
+    
  
 <h6 align="center" >🚧 project under construction... 🚧</h6>
