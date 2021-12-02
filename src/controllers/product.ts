@@ -131,7 +131,9 @@ export class ProductController {
         { _id: req.user.id },
         {
           $inc: { moneyincoins: -amount },
-          $pull: { totalcoins: coinExist._id },
+          $pull: {
+            totalcoins: { coinid: coinExist._id, namehash: nameinhash },
+          },
           $push: { products: _id, transactions: newTransaction._id },
         },
         { new: true }
@@ -186,12 +188,20 @@ export class ProductController {
       });
       await newTransaction.save();
 
+      const nameCoin: string = hash;
+      const [nameinhash] = nameCoin.split('.');
+      const coinCreatorExist = await CreatorCoin.findOne({
+        namecoinhash: nameinhash,
+      });
+
+      if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
       const upWallet = await Wallet.findOneAndUpdate(
         { hash: hash },
         {
           $inc: { index: 1, amount: -amount },
           $push: { prevHash: hash, transactions: newTransaction._id },
-          hash: hashCoin,
+          hash: `${nameinhash}.${hashCoin}`,
           publickey: publicKey,
           privatekey: privateKey,
           updatedAt: new Date(),

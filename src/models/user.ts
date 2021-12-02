@@ -1,6 +1,7 @@
 import { Schema, Document, model } from 'mongoose';
 
 export interface IUser extends Document {
+  _id: string;
   name: string;
   age: number;
   cpf: string;
@@ -24,7 +25,12 @@ const userSchema: Schema = new Schema(
     password: { type: String, required: [true, 'please password'] },
     moneyoutcoins: { type: Number, default: 0 },
     moneyincoins: { type: Number },
-    totalcoins: [{ type: String }],
+    totalcoins: [
+      {
+        coinid: { type: String },
+        namehashcoin: { type: String },
+      },
+    ],
     transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
     ownerenterprise: [{ type: Schema.Types.ObjectId, ref: 'enterprise' }],
     employeeEnterprise: { type: Schema.Types.ObjectId, ref: 'enterprise' },

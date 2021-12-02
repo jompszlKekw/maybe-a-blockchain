@@ -7,10 +7,12 @@ export interface ICoinCreator extends Document {
   namecoinhash: string;
   objectivecoin: string;
   currentmarketvalue: number;
+  createdAt: Date;
+  updateAt: Date;
   _doc: object;
 }
 
-const coinCreatorSchema: Schema = new Schema(
+const coinCreatorSchema: Schema = new Schema<ICoinCreator>(
   {
     namecreator: { type: String, ref: 'user' },
     nameEnterprise: { type: String, ref: 'enterprise' },

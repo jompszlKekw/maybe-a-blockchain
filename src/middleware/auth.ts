@@ -22,7 +22,7 @@ export async function authUser(
 
   if (!authorization) throw new AppError('Unathorized', 401);
 
-  const token = authorization.replace('Bearer', '').trim();
+  const token = authorization.replace('Bearer', ' ').trim();
 
   try {
     const data = <TokenPayload>verify(token, `${process.env.TOKEN_SECRET}`);

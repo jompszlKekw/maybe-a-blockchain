@@ -7,6 +7,7 @@ import { Product } from '../models/product';
 import { Wallet } from '../models/wallet';
 
 import { AppError } from '../config/AppErrors';
+
 export class UserController {
   public async createuser(req: Request, res: Response) {
     const { name, age, password, moneyoutcoins, cpf }: IUser = req.body;
@@ -71,8 +72,6 @@ export class UserController {
     });
 
     if (!findCoin) throw new AppError('Coin not found', 404);
-
-    if (change !== Boolean) throw new AppError('true or false');
 
     switch (change) {
       case change === true && findCoin.avaibleforpurchase === true:

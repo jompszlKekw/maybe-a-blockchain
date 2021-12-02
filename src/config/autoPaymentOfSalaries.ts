@@ -17,7 +17,7 @@ import { User } from '../models/user';
   const strToday = JSON.stringify(new Date());
 
   const [Year, Month, day] = strToday.split('-');
-  const [Day] = day.split('T');
+  const [Day, others] = day.split('T');
 
   const formatDate = `${Year}/${Month}/${Day}`;
 

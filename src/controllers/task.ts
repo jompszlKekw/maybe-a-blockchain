@@ -6,6 +6,7 @@ import { Task } from '../models/task';
 import { Wallet } from '../models/wallet';
 import { User } from '../models/user';
 import { Enterprise } from '../models/enterprise';
+import { CreatorCoin } from '../models/coinCreator';
 
 import { AppError } from '../config/AppErrors';
 
@@ -78,7 +79,7 @@ export class TaskEmployee {
     return res.status(200).json(alltask);
   }
   // two simple tasks just to test even
-  public async taskOfTyping100Numbers(req: Request, res: Response) {
+  public async taskOfTypingANumberGreaterThan100(req: Request, res: Response) {
     const { numbers, _id }: TTask = req.body;
 
     if (numbers < 1000) throw new AppError('imcomplete task');
@@ -91,11 +92,44 @@ export class TaskEmployee {
 
     if (!findCoin) throw new AppError('coin not found');
 
+    const anyupdate = Math.random() * 9999999967;
+    const publick = Math.random() * 9999999998;
+    const privatek = Math.random() * 9999999991;
+
+    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
+
+    const nameCoin: string = findCoin.hash;
+    const [nameinhash] = nameCoin.split('.');
+    const coinCreatorExist = await CreatorCoin.findOne({
+      namecoinhash: nameinhash,
+    });
+
+    if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
+    const upCoinWallet = await Wallet.findOneAndUpdate(
+      { _id: findTask.reward },
+      {
+        $inc: { index: 1 },
+        $push: { prevHash: findCoin.hash },
+        hash: `${nameinhash}.${hashCoin}`,
+        currentowner: req.user.id,
+        avaibleforpurchase: false,
+        publickey: publicKey,
+        privatekey: privateKey,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
     const upUser = await User.findByIdAndUpdate(
       { _id: req.user.id },
       {
         $inc: { moneyincoins: findCoin.amount },
-        $push: { totalcoins: findTask.reward },
+        $push: {
+          totalcoins: { coinid: findTask.reward, namehash: nameinhash },
+        },
       },
       { new: true }
     );
@@ -109,43 +143,18 @@ export class TaskEmployee {
       { new: true }
     );
 
-    const anyupdate = Math.random() * 9999999967;
-    const publick = Math.random() * 9999999998;
-    const privatek = Math.random() * 9999999991;
-
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
-
-    const upCoinWallet = await Wallet.findOneAndUpdate(
-      { _id: findTask.reward },
-      {
-        $inc: { index: 1 },
-        $push: { prevHash: findCoin.hash },
-        hash: hashCoin,
-        currentowner: req.user.id,
-        avaibleforpurchase: false,
-        publickey: publicKey,
-        privatekey: privateKey,
-        updatedAt: new Date(),
-      },
-      { new: true }
-    );
-
     const deleteTask = await Task.findByIdAndDelete(
       { _id: _id },
       { new: true }
     );
 
-    return res
-      .status(200)
-      .json({
-        msg: 'reward delivered, good job',
-        upUser,
-        upEnterprise,
-        upCoinWallet,
-        deleteTask,
-      });
+    return res.status(200).json({
+      msg: 'reward delivered, good job',
+      upUser,
+      upEnterprise,
+      upCoinWallet,
+      deleteTask,
+    });
   }
   public async taskOfMakingATextWithMoreThan1000Words(
     req: Request,
@@ -163,11 +172,44 @@ export class TaskEmployee {
 
     if (!findCoin) throw new AppError('coin not found');
 
+    const anyupdate = Math.random() * 9999999967;
+    const publick = Math.random() * 9999999998;
+    const privatek = Math.random() * 9999999991;
+
+    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
+
+    const nameCoin: string = findCoin.hash;
+    const [nameinhash] = nameCoin.split('.');
+    const coinCreatorExist = await CreatorCoin.findOne({
+      namecoinhash: nameinhash,
+    });
+
+    if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
+    const upCoinWallet = await Wallet.findOneAndUpdate(
+      { _id: findTask.reward },
+      {
+        $inc: { index: 1 },
+        $push: { prevHash: findCoin.hash },
+        hash: `${nameinhash}.${hashCoin}`,
+        currentowner: req.user.id,
+        avaibleforpurchase: false,
+        publickey: publicKey,
+        privatekey: privateKey,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
+
     const upUser = await User.findByIdAndUpdate(
       { _id: req.user.id },
       {
         $inc: { moneyincoins: findCoin.amount },
-        $push: { totalcoins: findTask.reward },
+        $push: {
+          totalcoins: { coinid: findTask.reward, namehash: nameinhash },
+        },
       },
       { new: true }
     );
@@ -181,42 +223,17 @@ export class TaskEmployee {
       { new: true }
     );
 
-    const anyupdate = Math.random() * 9999999967;
-    const publick = Math.random() * 9999999998;
-    const privatek = Math.random() * 9999999991;
-
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
-
-    const upCoinWallet = await Wallet.findOneAndUpdate(
-      { _id: findTask.reward },
-      {
-        $inc: { index: 1 },
-        $push: { prevHash: findCoin.hash },
-        hash: hashCoin,
-        currentowner: req.user.id,
-        avaibleforpurchase: false,
-        publickey: publicKey,
-        privatekey: privateKey,
-        updatedAt: new Date(),
-      },
-      { new: true }
-    );
-
     const deleteTask = await Task.findByIdAndDelete(
       { _id: _id },
       { new: true }
     );
 
-    return res
-      .status(200)
-      .json({
-        msg: 'reward delivered, good job',
-        upUser,
-        upEnterprise,
-        upCoinWallet,
-        deleteTask,
-      });
+    return res.status(200).json({
+      msg: 'reward delivered, good job',
+      upUser,
+      upEnterprise,
+      upCoinWallet,
+      deleteTask,
+    });
   }
 }

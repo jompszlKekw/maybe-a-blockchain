@@ -11,6 +11,7 @@ export interface IWallet extends Document {
   codingforbuy: string;
   publickey: string;
   privatekey: string;
+  lastmarketvalueupdate: string;
   _doc: object;
 }
 
@@ -26,6 +27,7 @@ const walletSchema: Schema = new Schema(
     codingforbuy: { type: String },
     publickey: { type: String, required: true },
     privatekey: { type: String, required: true },
+    lastmarketvalueupdate: { type: String, select: false },
   },
   {
     timestamps: true,

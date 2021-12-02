@@ -16,7 +16,7 @@ const taskSchema: Schema = new Schema(
     },
     accountable: { type: Schema.Types.ObjectId, required: true, ref: 'user' },
     description: { type: String, required: true },
-    reward: { type: Schema.Types.ObjectId, required: true, ref: 'walelt' },
+    reward: { type: Schema.Types.ObjectId, required: true, ref: 'wallet' },
   },
   {
     timestamps: true,

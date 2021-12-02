@@ -1,13 +1,18 @@
 import { Request, Response } from 'express';
 import { createHash } from 'crypto';
+import { HydratedDocument } from 'mongoose';
 
 import { Transaction } from '../models/transaction';
 import { User } from '../models/user';
 import { ICoinCreator, CreatorCoin } from './../models/coinCreator';
 import { IWallet, Wallet } from '../models/wallet';
+import { Enterprise } from '../models/enterprise';
+import {
+  Appreciation,
+  IApperciation,
+} from '../models/appreciationOfTheCurrency';
 
 import { AppError } from '../config/AppErrors';
-import { Enterprise } from '../models/enterprise';
 
 type WT = {
   privatekey: string;
@@ -44,15 +49,28 @@ export class CoinController {
     if (req.user.moneyoutcoins < 50000)
       throw new AppError("you don't have enough money to pay the fee");
 
-    const newCoin = new CreatorCoin({
+    const newCoin: HydratedDocument<ICoinCreator> = new CreatorCoin({
       namecreator: req.user.name,
       namecoin,
       namecoinhash: NameHash,
       objectivecoin,
       currentmarketvalue: valuecoin,
+      createdAt: new Date(),
     });
 
     await newCoin.save();
+
+    const newAppreciation: HydratedDocument<IApperciation> = new Appreciation({
+      coin: newCoin._id,
+      nameHashCoin: newCoin.namecoinhash,
+      prevValue: {
+        value: newCoin.currentmarketvalue,
+        dateUpdate: newCoin.createdAt,
+      },
+      currentvalue: newCoin.currentmarketvalue,
+    });
+
+    await newAppreciation.save();
 
     if (valuecoin > 50000) {
       const qat = Math.floor(Math.random() * 20) + 3;
@@ -90,8 +108,10 @@ export class CoinController {
         await User.findByIdAndUpdate(
           { _id: req.user.id },
           {
-            $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
+            $push: {
+              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+            },
+            $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
@@ -131,8 +151,10 @@ export class CoinController {
         await User.findByIdAndUpdate(
           { _id: req.user.id },
           {
-            $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
+            $push: {
+              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+            },
+            $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
@@ -172,8 +194,10 @@ export class CoinController {
         await User.findByIdAndUpdate(
           { _id: req.user.id },
           {
-            $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
+            $push: {
+              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+            },
+            $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
@@ -213,8 +237,10 @@ export class CoinController {
         await User.findByIdAndUpdate(
           { _id: req.user.id },
           {
-            $push: { totalcoins: newWallet._id },
-            $inc: { moneyincoins: newWallet.amount, moneyoutcoins: -50000 },
+            $push: {
+              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+            },
+            $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
@@ -226,15 +252,15 @@ export class CoinController {
   public async myCoinAvaibleForPurchase(req: Request, res: Response) {
     const { _id, codingforbuy, privatekey }: IWallet = req.body;
 
-    const coinExist = await Wallet.findOne({ _id: _id });
+    const coinExist = await Wallet.findOne({
+      _id: _id,
+      currentowner: req.user.id
+    });
 
     if (!coinExist) throw new AppError('coin not exists');
 
-    if (coinExist.currentowner !== req.user.id)
-      throw new AppError('currency is not yours');
-
-    if (coinExist.avaibleforpurchase === true)
-      throw new AppError('currency is already on the market available');
+    if (coinExist.avaibleforpurchase === false)
+      throw new AppError('This coin is not available to the market, put it up for sale, please.');
 
     if (coinExist.privatekey !== privatekey)
       throw new AppError('private key incorrect, or private key not exists');
@@ -256,7 +282,7 @@ export class CoinController {
   }
   public async searchCoinForPurchase(req: Request, res: Response) {
     const allcoins = await Wallet.find({ avaibleforpurchase: true }).select(
-      '-amount -index -prevHash -currentowner -transactions -privatekey'
+      '-prevHash -currentowner -transactions -privatekey'
     );
 
     if (!allcoins)
@@ -311,14 +337,14 @@ export class CoinController {
       hash,
     }: WT = req.body;
 
-    const coinExists = await Wallet.findOne({ privatekey: privatekey });
+    const coinExists = await Wallet.findOne({
+      privatekey: privatekey,
+      currentowner: req.user.id
+    });
 
     if (!coinExists) throw new AppError('private key not found', 404);
 
     if (coinExists.hash !== hash) throw new AppError('hash not found', 404);
-
-    if (coinExists.currentowner !== req.user.id)
-      throw new AppError('this coin is not yours');
 
     if (!codingforbuy) throw new AppError('please put the confirmforbuy');
 
@@ -345,12 +371,20 @@ export class CoinController {
     const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
 
     if (confirmbuy === true) {
+      const nameCoin: string = hash;
+      const [nameinhash] = nameCoin.split('.');
+      const coinCreatorExist = await CreatorCoin.findOne({
+        namecoinhash: nameinhash,
+      });
+
+      if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
       const newWallet = await Wallet.findByIdAndUpdate(
         { _id: _id },
         {
           $inc: { index: 1 },
           $push: { prevHash: hash, transactions: transactionExists._id },
-          hash: hashCoin,
+          hash: `${nameinhash}.${hashCoin}`,
           currentowner: transactionExists.payer,
           avaibleforpurchase: false,
           publickey: publicKey,
@@ -372,7 +406,7 @@ export class CoinController {
             moneyoutcoins: -transactionExists.amount,
             moneyincoins: transactionExists.amount,
           },
-          $push: { totalcoins: _id },
+          $push: { totalcoins: { coinid: _id, namehash: nameinhash } },
         },
         { new: true }
       );
@@ -383,10 +417,16 @@ export class CoinController {
             moneyoutcoins: transactionExists.amount,
             moneyincoins: -transactionExists.amount,
           },
-          $pull: { totalcoins: _id },
+          $pull: { totalcoins: { coinid: _id, namehash: nameinhash } },
         },
         { new: true }
       );
+
+      await Appreciation.findOneAndUpdate(
+        { nameHashCoin: nameinhash },
+        { $inc: { totalcoinspurchase: 1 } }
+      );
+
       return res.status(200).json({
         msg: 'transaction complete',
         newBlockchain: newWallet,
@@ -446,6 +486,14 @@ export class CoinController {
       { new: true }
     );
 
+    const nameCoin: string = walletransactionExists.hash;
+    const [nameinhash] = nameCoin.split('.');
+    const coinCreatorExist = await CreatorCoin.findOne({
+      namecoinhash: nameinhash,
+    });
+
+    if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
     const coinpayer = await Wallet.findByIdAndUpdate(
       { _id: _id },
       {
@@ -454,7 +502,7 @@ export class CoinController {
           prevHash: walletransactionExists.hash,
           transactions: transactionExists._id,
         },
-        hash: hashCoin,
+        hash: `${nameinhash}.${hashCoin}`,
       },
       { new: true }
     );
