@@ -11,13 +11,13 @@ export interface IUser extends Document {
   moneyincoins: number;
   transactions: Array<string>;
   ownerenterprise: Array<string>;
-  employeeEnterprise: string;
+  employeeEnterprise: string | Schema.Types.ObjectId;
   products: Array<string>;
   creditsocial: string;
   _doc: object;
 }
 
-const userSchema: Schema = new Schema(
+const userSchema: Schema = new Schema<IUser>(
   {
     name: { type: String, required: true, unique: true },
     age: { type: Number, required: true },

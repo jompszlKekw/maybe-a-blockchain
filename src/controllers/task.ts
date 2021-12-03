@@ -20,7 +20,7 @@ type TTask = {
 };
 
 export class TaskEmployee {
-  public async newTask(req: Request, res: Response) {
+  public async newTask(req: Request, res: Response): Promise<object> {
     const { accountable, description, reward }: TTask = req.body;
 
     const findEmployee = await Employee.findOne({
@@ -61,14 +61,14 @@ export class TaskEmployee {
 
     return res.status(201).json({ msg: 'task created', newTask });
   }
-  public async getMyTasks(req: Request, res: Response) {
+  public async getMyTasks(req: Request, res: Response): Promise<object> {
     const alltask = await Task.find({ accountable: req.user.id });
 
     if (!alltask) throw new AppError('it seems that has no task for you');
 
     return res.status(200).json(alltask);
   }
-  public async getTasksFromMyCompany(req: Request, res: Response) {
+  public async getTasksFromMyCompany(req: Request, res: Response): Promise<object> {
     const alltask = await Task.find({ enterprise: req.enterprise._id });
 
     if (!alltask)
@@ -79,7 +79,7 @@ export class TaskEmployee {
     return res.status(200).json(alltask);
   }
   // two simple tasks just to test even
-  public async taskOfTypingANumberGreaterThan100(req: Request, res: Response) {
+  public async taskOfTypingANumberGreaterThan100(req: Request, res: Response): Promise<object> {
     const { numbers, _id }: TTask = req.body;
 
     if (numbers < 1000) throw new AppError('imcomplete task');
@@ -159,7 +159,7 @@ export class TaskEmployee {
   public async taskOfMakingATextWithMoreThan1000Words(
     req: Request,
     res: Response
-  ) {
+  ): Promise<object> {
     const { text, _id }: TTask = req.body;
 
     if (text.length < 1050) throw new AppError('imcomplete task');

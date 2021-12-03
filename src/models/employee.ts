@@ -1,13 +1,13 @@
 import { Document, model, Schema } from 'mongoose';
 
 export interface IEmployee extends Document {
-  enterprise: string;
+  enterprise: string | Schema.Types.ObjectId;
   employee: Array<string>;
   salary: number;
   nextsalary: string;
 }
 
-const employeeSchema: Schema = new Schema(
+const employeeSchema: Schema = new Schema<IEmployee>(
   {
     enterprise: {
       type: Schema.Types.ObjectId,

@@ -3,18 +3,19 @@ import { sign } from 'jsonwebtoken';
 import { compare, hash } from 'bcrypt';
 
 import { Enterprise, IEnterprise } from './../models/enterprise';
-import { User } from '../models/user';
+import { IUser, User } from '../models/user';
 import { Product } from '../models/product';
 
 import { AppError } from './../config/AppErrors';
 import { Employee } from '../models/employee';
+import { HydratedDocument } from 'mongoose';
 
 export class EnterpriseController {
-  public async registerEnterprise(req: Request, res: Response) {
+  public async registerEnterprise(req: Request, res: Response): Promise<object> {
     const { name, owners, cnpj, email, password, moneyoutcoins }: IEnterprise =
       req.body;
 
-    const enterpriseExists = await Enterprise.findOne({
+    const enterpriseExists: IEnterprise = await Enterprise.findOne({
       name: name,
       email: email,
       cnpj: cnpj,
@@ -22,13 +23,13 @@ export class EnterpriseController {
 
     if (enterpriseExists) throw new AppError('name, cnpj or email exists');
 
-    const findOwner = await User.findOne({ name: owners });
+    const findOwner: IUser = await User.findOne({ name: owners });
 
     if (!findOwner) throw new AppError('Owner not found');
 
     const passHash = await hash(password, 12);
 
-    const newEnterprise = new Enterprise({
+    const newEnterprise: HydratedDocument<IEnterprise> = new Enterprise({
       name,
       owners: findOwner.id,
       cnpj,
@@ -53,7 +54,7 @@ export class EnterpriseController {
 
     return res.status(200).json({ newEnterprise, upOwner });
   }
-  public async login(req: Request, res: Response) {
+  public async login(req: Request, res: Response): Promise<void> {
     const { email, password }: IEnterprise = req.body;
 
     const enterprise = await Enterprise.findOne({ email: email });
@@ -72,7 +73,7 @@ export class EnterpriseController {
       token,
     });
   }
-  public async searchMyProductsEnterprise(req: Request, res: Response) {
+  public async searchMyProductsEnterprise(req: Request, res: Response): Promise<object> {
     const all = await Product.find({
       enterprise: req.enterprise.id,
       sold: false,
@@ -83,7 +84,7 @@ export class EnterpriseController {
 
     return res.status(200).json(all);
   }
-  public async changeOpenForHiring(req: Request, res: Response) {
+  public async changeOpenForHiring(req: Request, res: Response): Promise<object> {
     const { change } = req.body;
 
     const findEnterprise = await Enterprise.findOne({ _id: req.enterprise.id });

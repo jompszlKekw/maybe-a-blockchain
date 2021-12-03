@@ -1,13 +1,13 @@
 import { Document, model, Schema } from 'mongoose';
 
 export interface ITask extends Document {
-  enterprise: string;
-  accountable: string;
+  enterprise: string | Schema.Types.ObjectId;
+  accountable: string | Schema.Types.ObjectId;
   description: string;
-  reward: string;
+  reward: string | Schema.Types.ObjectId;
 }
 
-const taskSchema: Schema = new Schema(
+const taskSchema: Schema = new Schema<ITask>(
   {
     enterprise: {
       type: Schema.Types.ObjectId,

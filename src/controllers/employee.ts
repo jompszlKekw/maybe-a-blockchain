@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import { createHash } from 'crypto';
 
-import { User } from '../models/user';
-import { Employee } from '../models/employee';
-import { Enterprise } from '../models/enterprise';
-import { HiringRequest } from '../models/hiringRequest';
+import { IUser, User } from '../models/user';
+import { Employee, IEmployee } from '../models/employee';
+import { Enterprise, IEnterprise } from '../models/enterprise';
+import { HiringRequest, IHiring } from '../models/hiringRequest';
 
 import { AppError } from '../config/AppErrors';
+import { HydratedDocument } from 'mongoose';
 
 type HP = {
   _id: string;
@@ -18,18 +19,18 @@ type HP = {
 };
 
 export class EmployeeController {
-  public async searchOpenForHiring(req: Request, res: Response) {
-    const all = await Enterprise.find({ openforhiring: true });
+  public async searchOpenForHiring(req: Request, res: Response): Promise<object> {
+    const all: Array<IEnterprise> = await Enterprise.find({ openforhiring: true });
 
     if (!all)
       throw new AppError("it seems like there's no open company for hiring");
 
-    return res.status(200).json(all);
+    return res.status(200).json({all});
   }
-  public async hiringRequest(req: Request, res: Response) {
-    const { _id, curriculum } = req.body;
+  public async hiringRequest(req: Request, res: Response): Promise<object> {
+    const { _id, curriculum }: IHiring = req.body;
 
-    const enterpriseExist = await Enterprise.findById({ _id: _id });
+    const enterpriseExist: IEnterprise = await Enterprise.findById({ _id: _id });
 
     if (!enterpriseExist) throw new AppError('enterprise not found', 404);
 
@@ -48,7 +49,7 @@ export class EmployeeController {
       .update(`${req.user.id}`)
       .digest('hex');
 
-    const newHiringRequest = new HiringRequest({
+    const newHiringRequest: HydratedDocument<IHiring> = new HiringRequest({
       sender: req.user.id,
       addressee: _id,
       curriculum,
@@ -59,39 +60,39 @@ export class EmployeeController {
 
     return res.status(200).json({ msg: 'curriculo eviado', newHiringRequest });
   }
-  public async searchForHiringRequest(req: Request, res: Response) {
-    const allReq = await HiringRequest.find({ addressee: req.enterprise.id });
+  public async searchForHiringRequest(req: Request, res: Response): Promise<object> {
+    const allReq: Array<IHiring> = await HiringRequest.find({ addressee: req.enterprise.id });
 
     if (!allReq) throw new AppError('it seems like it has no hiring request');
 
-    return res.status(200).json(allReq);
+    return res.status(200).json({allReq});
   }
-  public async hiresPeople(req: Request, res: Response) {
+  public async hiresPeople(req: Request, res: Response): Promise<object> {
     const { _id, hashforhiring, salary, day }: HP = req.body;
 
-    const employeeExist = await User.findById({ _id: _id });
+    const employeeExist: IUser = await User.findById({ _id: _id });
 
     if (!employeeExist) throw new AppError('employee not exist');
 
     if (employeeExist.employeeEnterprise)
       throw new AppError('that same person is already working in a company');
 
-    const enterpriseExists = await Enterprise.findOne({ employees: _id });
+    const enterpriseExists: IEnterprise = await Enterprise.findOne({ employees: _id });
 
     if (enterpriseExists) throw new AppError('user already hired');
 
-    const hashExist = await HiringRequest.findOne({
+    const hashExist: IHiring = await HiringRequest.findOne({
       hashforhiring: hashforhiring,
     });
 
     if (!hashExist) throw new AppError('hash not found');
 
-    const findModelEmployee = await Employee.findOne({
+    const findModelEmployee: IEmployee = await Employee.findOne({
       enterprise: req.enterprise.id,
     });
 
     if (!findModelEmployee) {
-      const newEmployee = new Employee({
+      const newEmployee: HydratedDocument<IEmployee> = new Employee({
         enterprise: req.enterprise.id,
       });
 
@@ -101,8 +102,8 @@ export class EmployeeController {
     if (hashExist.addressee !== req.enterprise._id)
       throw new AppError('it seems that this vacancy is not for your company');
 
-    let month = new Date().getUTCMonth() + 2;
-    let year = new Date().getUTCFullYear();
+    let month: number = new Date().getUTCMonth() + 2;
+    let year: number = new Date().getUTCFullYear();
 
     if (month > 12 || month < 1) {
       month = 1;

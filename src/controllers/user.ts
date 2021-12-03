@@ -9,7 +9,7 @@ import { Wallet } from '../models/wallet';
 import { AppError } from '../config/AppErrors';
 
 export class UserController {
-  public async createuser(req: Request, res: Response) {
+  public async createuser(req: Request, res: Response): Promise<object> {
     const { name, age, password, moneyoutcoins, cpf }: IUser = req.body;
 
     const nameExists = await User.findOne({ name: name, cpf: cpf });
@@ -29,7 +29,7 @@ export class UserController {
 
     return res.status(200).json({ newUser });
   }
-  public async login(req: Request, res: Response) {
+  public async login(req: Request, res: Response): Promise<void> {
     const { name, password }: IUser = req.body;
 
     const user = await User.findOne({ name: name });
@@ -48,7 +48,7 @@ export class UserController {
       token,
     });
   }
-  public async getMyCoins(req: Request, res: Response) {
+  public async getMyCoins(req: Request, res: Response): Promise<object> {
     const myCoins = await Wallet.find({ currentowner: req.user.id });
 
     if (!myCoins)
@@ -56,14 +56,14 @@ export class UserController {
 
     return res.status(200).json({ myCoins });
   }
-  public async searchMyProductsUser(req: Request, res: Response) {
+  public async searchMyProductsUser(req: Request, res: Response): Promise<object> {
     const all = await Product.find({ proprietor: req.user.id });
 
     if (!all) throw new AppError("it seems that you don't have any products");
 
     return res.status(200).json(all);
   }
-  public async takeCurrencyOutOfTheMarket(req: Request, res: Response) {
+  public async takeCurrencyOutOfTheMarket(req: Request, res: Response): Promise<object> {
     const { change, _id } = req.body;
 
     const findCoin = await Wallet.findOne({

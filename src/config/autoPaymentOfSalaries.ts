@@ -1,4 +1,4 @@
-import { Employee } from '../models/employee';
+import { Employee, IEmployee } from '../models/employee';
 import { Enterprise } from '../models/enterprise';
 import { User } from '../models/user';
 
@@ -14,24 +14,24 @@ import { User } from '../models/user';
  */
 
 (async (): Promise<void> => {
-  const strToday = JSON.stringify(new Date());
+  const strToday: string = JSON.stringify(new Date());
 
-  const [Year, Month, day] = strToday.split('-');
-  const [Day, others] = day.split('T');
+  const [Year, Month, day]: Array<string> = strToday.split('-');
+  const [Day, others]: Array<string> = day.split('T');
 
-  const formatDate = `${Year}/${Month}/${Day}`;
+  const formatDate: string = `${Year}/${Month}/${Day}`;
 
-  const findDateEmployee = await Employee.find({ nextsalary: formatDate });
+  const findDateEmployee: Array<IEmployee> = await Employee.find({ nextsalary: formatDate });
 
   async function paymentOfSalaries() {
     const findEmployees = await Employee.findOne({ nextsalary: formatDate });
 
     if (!findEmployees) return;
 
-    let month = new Date().getUTCMonth() + 3;
-    let year = new Date().getUTCFullYear();
+    let month: number = new Date().getUTCMonth() + 3;
+    let year: number = new Date().getUTCFullYear();
 
-    const [, , Day] = findEmployees.nextsalary.split('/');
+    const [, , Day]: Array<string> = findEmployees.nextsalary.split('/');
 
     if (month > 12 || month < 1) {
       month = 1;
@@ -66,10 +66,10 @@ import { User } from '../models/user';
 
     if (!findEmployees) return;
 
-    let month = new Date().getUTCMonth() + 3;
-    let year = new Date().getUTCFullYear();
+    let month: number = new Date().getUTCMonth() + 3;
+    let year: number = new Date().getUTCFullYear();
 
-    const [, , Day] = findEmployees.nextsalary.split('/');
+    const [, , Day]: Array<string> = findEmployees.nextsalary.split('/');
 
     if (month > 12 || month < 1) {
       month = 1;

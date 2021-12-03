@@ -1,13 +1,13 @@
 import { Document, model, Schema } from 'mongoose';
 
 export interface IHiring extends Document {
-  sender: string;
-  addressee: string;
+  sender: string | Schema.Types.ObjectId;
+  addressee: string | Schema.Types.ObjectId;
   curriculum: string;
   hashforhiring: string;
 }
 
-const hiringSchema: Schema = new Schema(
+const hiringSchema: Schema = new Schema<IHiring>(
   {
     sender: { type: Schema.Types.ObjectId, required: true, ref: 'user' },
     addressee: {

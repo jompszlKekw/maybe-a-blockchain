@@ -1,8 +1,8 @@
 import { Document, model, Schema } from 'mongoose';
 
 export interface IProduct extends Document {
-  enterprise: string;
-  proprietor: string;
+  enterprise: string | Schema.Types.ObjectId;
+  proprietor: string | Schema.Types.ObjectId;
   name: string;
   description: string;
   value: number;
@@ -11,7 +11,7 @@ export interface IProduct extends Document {
   sold: boolean;
 }
 
-const productSchema: Schema = new Schema(
+const productSchema: Schema = new Schema<IProduct>(
   {
     enterprise: {
       type: Schema.Types.ObjectId,

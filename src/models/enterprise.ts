@@ -17,7 +17,7 @@ export interface IEnterprise extends Document {
   _doc: object;
 }
 
-const enterpriseSchema: Schema = new Schema(
+const enterpriseSchema: Schema = new Schema<IEnterprise>(
   {
     name: { type: String, required: true },
     owners: [{ type: Schema.Types.ObjectId, required: true, ref: 'user' }],

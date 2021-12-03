@@ -11,7 +11,7 @@ import { Enterprise } from '../models/enterprise';
 import { AppError } from '../config/AppErrors';
 
 export class ProductController {
-  public async createProduct(req: Request, res: Response) {
+  public async createProduct(req: Request, res: Response): Promise<object> {
     const { name, description, objective, value, quantity }: IProduct =
       req.body;
 
@@ -62,7 +62,7 @@ export class ProductController {
 
     return res.status(200).json({ msg: 'deu certo, confia' });
   }
-  public async searchProducts(req: Request, res: Response) {
+  public async searchProducts(req: Request, res: Response): Promise<object> {
     const products = await Product.find({
       objective: req.body.objective,
       sold: false,
@@ -70,9 +70,9 @@ export class ProductController {
 
     if (!products) throw new AppError('product not exist');
 
-    return res.status(200).json(products);
+    return res.status(200).json({products});
   }
-  public async buyProduct(req: Request, res: Response) {
+  public async buyProduct(req: Request, res: Response): Promise<object> {
     const { hash, _id, amount }: IWallet = req.body;
 
     const coinExist = await Wallet.findOne({
@@ -246,7 +246,7 @@ export class ProductController {
       });
     }
   }
-  public async deleteProduct(req: Request, res: Response) {
+  public async deleteProduct(req: Request, res: Response): Promise<object> {
     const product = await Product.findOneAndDelete({
       _id: req.body._id,
       enterprise: req.enterprise.id,
