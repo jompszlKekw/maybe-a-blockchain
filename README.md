@@ -10,7 +10,6 @@
 
 ## Description
  <p>in this project I wanted to make a "blockchain", but maybe it didn't come out the best way, or I didn't quite understand how a blockchain works.</p>
- <p>there are many errors throughout the application, so look at the last branch if you have some silly errors</p>
  <p>the "attempt-that-gone wrong" branch doesn't need to be taken into account</p>
  
 ## How to project work
