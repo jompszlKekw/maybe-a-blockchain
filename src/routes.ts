@@ -2,30 +2,138 @@ import { Router } from 'express';
 
 import { UserController } from './controllers/user';
 import { CoinController } from './controllers/coin';
+import { EmployeeController } from './controllers/employee';
+import { EnterpriseController } from './controllers/enterprise';
+import { ProductController } from './controllers/product';
+import { TaskEmployee } from './controllers/task';
 
-import { auth } from './middleware/auth';
-import { validCPF } from './middleware/CNPJCPF';
+import { authUser, authEnterprise } from './middleware/auth';
+import {
+  validRegisterEnterprise,
+  validRegisterUser,
+} from './middleware/validRegister';
 
 const routes = Router();
 
 const userController = new UserController();
 const coinController = new CoinController();
+const enterpriseController = new EnterpriseController();
+const productController = new ProductController();
+const employeeController = new EmployeeController();
+const taskController = new TaskEmployee();
 
-routes.post('/newuser', validCPF, userController.createuser);
-routes.post('/login', userController.login);
+routes.post('/newuser', validRegisterUser, userController.createuser);
+routes.post('/loginuser', userController.login);
 
-routes.post('/createcoin', auth, coinController.createCoin);
-routes.get('/mycoins', auth, coinController.getMyCoins);
+routes.post('/mycoinsuser', authUser, userController.getMyCoins);
 
-routes.put('/mcafp', auth, coinController.myCoinAvaibleForPurchase);
-routes.get('/searchcoin', auth, coinController.searchCoinForPurchase);
-routes.put('/codingtransaction', auth, coinController.bidCoin);
-routes.put('/confirmbuycoin', auth, coinController.confirmBuyCoin);
-routes.put('/sendmoneycoins', auth, coinController.sendMoneyWithMoneyTheCoins);
+routes.post(
+  '/serarchmyproductsuser',
+  authUser,
+  userController.searchMyProductsUser
+);
+
+routes.put(
+  '/takeCurrencyOutOfTheMarket',
+  authUser,
+  userController.takeCurrencyOutOfTheMarket
+);
+
+/**------------------------------------------------------------------------------------- */
+routes.post('/createcoin', authUser, coinController.createCoinUser);
+
+routes.put('/mcafp', authUser, coinController.myCoinAvaibleForPurchase);
+routes.get('/searchcoin', authUser, coinController.searchCoinForPurchase);
+routes.put('/codingtransaction', authUser, coinController.bidCoin);
+routes.put('/confirmbuycoin', authUser, coinController.confirmBuyCoin);
+routes.put(
+  '/sendmoneycoins',
+  authUser,
+  coinController.sendMoneyWithMoneyTheCoins
+);
 routes.put(
   '/sendmoneyoutocoins',
-  auth,
+  authUser,
   coinController.sendMoneyWithMoneyOutCoins
+);
+
+routes.post(
+  '/createcoinenterprise',
+  authEnterprise,
+  coinController.createCoinEnterprise
+);
+
+/**------------------------------------------------------------------------------------- */
+routes.post(
+  '/registerenterprise',
+  validRegisterEnterprise,
+  authUser,
+  enterpriseController.registerEnterprise
+);
+routes.post('/loginenterprise', enterpriseController.login);
+
+routes.get(
+  '/searchmyproductsenterprise',
+  authEnterprise,
+  enterpriseController.searchMyProductsEnterprise
+);
+
+routes.put(
+  '/changeOpenForHiring',
+  authEnterprise,
+  enterpriseController.changeOpenForHiring
+);
+
+/**------------------------------------------------------------------------------------- */
+routes.post(
+  '/registernewproduct',
+  authEnterprise,
+  productController.createProduct
+);
+routes.get('/searchmyproducts', productController.searchProducts);
+
+routes.put('/buyproduct', authUser, productController.buyProduct);
+
+routes.delete(
+  '/deleteproduct',
+  authEnterprise,
+  productController.deleteProduct
+);
+
+/**------------------------------------------------------------------------------------- */
+
+routes.get(
+  '/searchopenforhiring',
+  authUser,
+  employeeController.searchOpenForHiring
+);
+
+routes.post('/hiringrequest', authUser, employeeController.hiringRequest);
+
+routes.get(
+  '/searchforhiringrequest',
+  authEnterprise,
+  employeeController.searchForHiringRequest
+);
+
+routes.put('/hirespeople', authEnterprise, employeeController.hiresPeople);
+
+/**------------------------------------------------------------------------------------- */
+
+routes.post('/newtask', authEnterprise, taskController.newTask);
+
+routes.get('/getmytasks', authUser, taskController.getMyTasks);
+routes.get(
+  '/taskfrommycompany',
+  authEnterprise,
+  taskController.getTasksFromMyCompany
+);
+
+routes.put('/task100numbers', authUser, taskController.taskOfTyping100Numbers);
+routes.put(
+  '/task1000words',
+  authUser,
+  taskController.taskOfMakingATextWithMoreThan1000Words
 );
 
 export { routes };
