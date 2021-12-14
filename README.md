@@ -1,6 +1,6 @@
 # Maybe a BlockChain?
 
-<p>( I have less than 1 year of js, so this project is being for me a way to practice without having copied any course or tutorial, it's just a thing in my head )</p>
+<p>( Tenho menos de 1 ano de js, então este projeto é basicamente coisa da minha mente e não nada que foi copiado )</p>
 
 ## Table of contents
 * [Description / Notes](#Description)
@@ -9,11 +9,12 @@
 * [Features](#Features)
 
 ## Description
- <p>in this project I wanted to make a "blockchain", but maybe it didn't come out the best way, or I didn't quite understand how a blockchain works.</p>
- <p>the "attempt-that-gone wrong" branch doesn't need to be taken into account</p>
+ <p>O projeto era para tentar replicar uma "BlockChain", tipo o BitCoin, mas eu fiz meio diferente, adicionando umas coisas e fazendo outras coisas diferentes</p>
+ <p>O arquivo "currencyValueUpdate.ts" da branch "attempt-went-that-wrong" foi um experimento tipo o arquivo "autoPaymentOfSaalry.ts", mas deu errado, vou refotorar ele a qualquer hora, então esta funcionalidade não está funcionando ainda</p>
  
 ## How to project work
-  <p>People and companies can create coins, each currency can have a goal or a way to spend it on products differently. They can make transactions and exchange currencies.</p>
+  <p>Pessoas podem criar moedas, essas moedas pode ter um objetivo unico para ser gasta, ex: "comprar comida", e essa moeda pode comprar somente produtos que contem o mesmo objetivo. Usuarios podem comprar moedas tambem. Podem fazer transações com moedas e sem ser com moeda</p>
+  <p>Empresas podem contratar, podem fazer tasks para seus funcionarios e pagar com moedas, podem fazer produtos, o pagamento é depositado automaticamente quando a aplicação estiver sendo inicializada e se estiver no dia certo e elas podem fazer moedas tambem</p>
 
 ## Technologies
   - Node.js version - v14.17.4
@@ -21,23 +22,21 @@
   - ExpressJs version - v4.17.1
 
 ## Features
- ##### (I'll add more features when I have more ideas)
+ ##### (Vou adicionando mais funcionalidade quando tiver ideias)
   - Peoples
-    - [x] coin creation
-    - [x] buying currency
-    - [x] sending money with coins and without coins
-    - [x] purchase of products
+    - [x] criação de moedas
+    - [x] comprar moedas
+    - [x] mandar dinheiro seja com moedas ou sem moedas
+    - [x] comprar produtos
   - Enterprise
-    - [x] creating coins for the company
-    - [x] creation of products that can only be purchased by selected currencies
-    - [x] hiring of employees
-    - [x] delivery of coins by tasks done to employees
-    - [x] automatic payment
+    - [x] criação de moedas
+    - [x] criação de produtos
+    - [x] contratação de funcionarios
+    - [x] pagamento de moedas por tasks feitas
+    - [x] pagamento automatico
   - in the future
     - [] tests
-    - [] mining of new currencies 
-    - [] integration with socket.io
-    - [] maybe a front-end
+    - [] mineração de novas moedas
     
  
-<h6 align="center" >🚧 project under construction... 🚧</h6>
+<h6 align="center" >🚧 projeto ainda em produção... 🚧</h6>
