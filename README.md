@@ -10,7 +10,7 @@
 
 ## Description
  <p>O projeto era para tentar replicar uma "BlockChain", tipo o BitCoin, mas eu fiz meio diferente, adicionando umas coisas e fazendo outras coisas diferentes</p>
- <p>O arquivo "currencyValueUpdate.ts", na pasta config, da branch "attempt-went-that-wrong" foi um experimento tipo o arquivo "autoPaymentOfSalary.ts", mas deu errado, vou refotorar ele a qualquer hora, então esta funcionalidade não está funcionando ainda</p>
+ <p>O arquivo "currencyValueUpdate.ts", na pasta config, da branch "attempt-went-that-wrong" foi um experimento tipo o arquivo "autoPaymentOfSalary.ts", mas deu errado, vou refatorar ele a qualquer hora, então esta funcionalidade não está funcionando ainda</p>
  
 ## How to project work
   <p>Pessoas podem criar moedas, essas moedas pode ter um objetivo unico para ser gasta, ex: "comprar comida", e essa moeda pode comprar somente produtos que contem o mesmo objetivo. Usuarios podem comprar moedas tambem. Podem fazer transações com moedas e sem ser com moeda</p>
