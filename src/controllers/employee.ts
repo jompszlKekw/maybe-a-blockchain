@@ -19,18 +19,25 @@ type HP = {
 };
 
 export class EmployeeController {
-  public async searchOpenForHiring(req: Request, res: Response): Promise<object> {
-    const all: Array<IEnterprise> = await Enterprise.find({ openforhiring: true });
+  public async searchOpenForHiring(
+    req: Request,
+    res: Response
+  ): Promise<object> {
+    const all: Array<IEnterprise> = await Enterprise.find({
+      openforhiring: true,
+    }).select(
+      '-moneyoutcoins -password -transactions -tasks -products -updatedAt -__v'
+    );
 
     if (!all)
       throw new AppError("it seems like there's no open company for hiring");
 
-    return res.status(200).json({all});
+    return res.status(200).json({ all });
   }
   public async hiringRequest(req: Request, res: Response): Promise<object> {
     const { _id, curriculum }: IHiring = req.body;
 
-    const enterpriseExist: IEnterprise = await Enterprise.findById({ _id: _id });
+    const enterpriseExist = await Enterprise.findById({ _id: _id });
 
     if (!enterpriseExist) throw new AppError('enterprise not found', 404);
 
@@ -60,34 +67,39 @@ export class EmployeeController {
 
     return res.status(200).json({ msg: 'curriculo eviado', newHiringRequest });
   }
-  public async searchForHiringRequest(req: Request, res: Response): Promise<object> {
-    const allReq: Array<IHiring> = await HiringRequest.find({ addressee: req.enterprise.id });
+  public async searchForHiringRequest(
+    req: Request,
+    res: Response
+  ): Promise<object> {
+    const allReq: Array<IHiring> = await HiringRequest.find({
+      addressee: req.enterprise.id,
+    });
 
     if (!allReq) throw new AppError('it seems like it has no hiring request');
 
-    return res.status(200).json({allReq});
+    return res.status(200).json({ allReq });
   }
   public async hiresPeople(req: Request, res: Response): Promise<object> {
     const { _id, hashforhiring, salary, day }: HP = req.body;
 
-    const employeeExist: IUser = await User.findById({ _id: _id });
+    const employeeExist = await User.findById({ _id: _id });
 
     if (!employeeExist) throw new AppError('employee not exist');
 
     if (employeeExist.employeeEnterprise)
       throw new AppError('that same person is already working in a company');
 
-    const enterpriseExists: IEnterprise = await Enterprise.findOne({ employees: _id });
+    const enterpriseExists = await Enterprise.findOne({ employees: _id });
 
     if (enterpriseExists) throw new AppError('user already hired');
 
-    const hashExist: IHiring = await HiringRequest.findOne({
+    const hashExist = await HiringRequest.findOne({
       hashforhiring: hashforhiring,
     });
 
     if (!hashExist) throw new AppError('hash not found');
 
-    const findModelEmployee: IEmployee = await Employee.findOne({
+    const findModelEmployee = await Employee.findOne({
       enterprise: req.enterprise.id,
     });
 

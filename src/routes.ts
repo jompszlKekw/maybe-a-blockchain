@@ -25,9 +25,9 @@ const taskController = new TaskEmployee();
 routes.post('/newuser', validRegisterUser, userController.createuser);
 routes.post('/loginuser', userController.login);
 
-routes.post('/mycoinsuser', authUser, userController.getMyCoins);
+routes.get('/mycoinsuser', authUser, userController.getMyCoins);
 
-routes.post(
+routes.get(
   '/serarchmyproductsuser',
   authUser,
   userController.searchMyProductsUser
@@ -45,6 +45,11 @@ routes.post('/createcoin', authUser, coinController.createCoinUser);
 routes.put('/mcafp', authUser, coinController.myCoinAvaibleForPurchase);
 routes.get('/searchcoin', authUser, coinController.searchCoinForPurchase);
 routes.put('/codingtransaction', authUser, coinController.bidCoin);
+routes.get(
+  '/seebidsonmycurrency',
+  authUser,
+  coinController.seeBidsOnMyCurrency
+);
 routes.put('/confirmbuycoin', authUser, coinController.confirmBuyCoin);
 routes.put(
   '/sendmoneycoins',
@@ -84,13 +89,15 @@ routes.put(
   enterpriseController.changeOpenForHiring
 );
 
+routes.get('/mycoinsenterprise', authEnterprise, enterpriseController.getcoins);
+
 /**------------------------------------------------------------------------------------- */
 routes.post(
   '/registernewproduct',
   authEnterprise,
   productController.createProduct
 );
-routes.get('/searchmyproducts', productController.searchProducts);
+routes.get('/searchproducts', productController.searchProducts);
 
 routes.put('/buyproduct', authUser, productController.buyProduct);
 
@@ -130,6 +137,12 @@ routes.get(
 );
 
 routes.put('/task100numbers', authUser, taskController.taskOfMakingATextWithMoreThan1000Words);
+
+routes.put(
+  '/task100numbers',
+  authUser,
+  taskController.taskOfTypingANumberGreaterThan100
+);
 routes.put(
   '/task1000words',
   authUser,

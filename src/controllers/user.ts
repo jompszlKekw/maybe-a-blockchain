@@ -13,7 +13,7 @@ export class UserController {
     const { name, age, password, moneyoutcoins, cpf }: IUser = req.body;
 
     const nameExists = await User.findOne({ name: name, cpf: cpf });
-    if (nameExists) throw new AppError('name exists, add any word');
+    if (nameExists) throw new AppError('name exists, or cpf exists');
 
     const passhash = await hash(password, 12);
 
@@ -27,7 +27,7 @@ export class UserController {
 
     await newUser.save();
 
-    return res.status(200).json({ newUser });
+    return res.status(201).json({ newUser });
   }
   public async login(req: Request, res: Response): Promise<void> {
     const { name, password }: IUser = req.body;
@@ -56,14 +56,20 @@ export class UserController {
 
     return res.status(200).json({ myCoins });
   }
-  public async searchMyProductsUser(req: Request, res: Response): Promise<object> {
+  public async searchMyProductsUser(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const all = await Product.find({ proprietor: req.user.id });
 
     if (!all) throw new AppError("it seems that you don't have any products");
 
     return res.status(200).json(all);
   }
-  public async takeCurrencyOutOfTheMarket(req: Request, res: Response): Promise<object> {
+  public async takeCurrencyOutOfTheMarket(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { change, _id } = req.body;
 
     const findCoin = await Wallet.findOne({
