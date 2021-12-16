@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { verify } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 
 import { IUser, User } from '../models/user';
 import { Enterprise, IEnterprise } from '../models/enterprise';
@@ -25,7 +25,9 @@ export async function authUser(
   const token = authorization.replace('Bearer', ' ').trim();
 
   try {
-    const data = <TokenPayload>verify(token, `${process.env.TOKEN_SECRET}`);
+    const data = <TokenPayload>(
+      (<unknown>verify(token, `${process.env.TOKEN_SECRET}`))
+    );
 
     if (!data) throw new AppError('Unathorized', 401);
 
@@ -54,7 +56,9 @@ export async function authEnterprise(
   const token = authorization.replace('Bearer', '').trim();
 
   try {
-    const data = <TokenPayload>verify(token, `${process.env.TOKEN_SECRET}`);
+    const data = <TokenPayload>(
+      (<unknown>verify(token, `${process.env.TOKEN_SECRET}`))
+    );
 
     if (!data) throw new AppError('Unathorized', 401);
 
@@ -67,4 +71,8 @@ export async function authEnterprise(
   } catch {
     throw new AppError('Unathorized', 401);
   }
+}
+
+export function generateTokenForTests(payload: object): string {
+  return sign(payload, `${process.env.TOKEN_SECRET}`, { expiresIn: '1d' });
 }

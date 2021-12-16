@@ -38,6 +38,13 @@ const userSchema: Schema = new Schema<IUser>(
     creditsocial: { type: String, default: 'negative kkkkkkkkkkkkkkkkkkkkk' },
   },
   {
+    toJSON: {
+      transform: (_, ret): void => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
     timestamps: true,
   }
 );

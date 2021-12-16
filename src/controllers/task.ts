@@ -68,7 +68,10 @@ export class TaskEmployee {
 
     return res.status(200).json(alltask);
   }
-  public async getTasksFromMyCompany(req: Request, res: Response): Promise<object> {
+  public async getTasksFromMyCompany(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const alltask = await Task.find({ enterprise: req.enterprise._id });
 
     if (!alltask)
@@ -79,7 +82,10 @@ export class TaskEmployee {
     return res.status(200).json(alltask);
   }
   // two simple tasks just to test even
-  public async taskOfTypingANumberGreaterThan100(req: Request, res: Response): Promise<object> {
+  public async taskOfTypingANumberGreaterThan100(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { numbers, _id }: TTask = req.body;
 
     if (numbers < 1000) throw new AppError('imcomplete task');

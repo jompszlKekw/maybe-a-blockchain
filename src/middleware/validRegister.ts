@@ -6,7 +6,7 @@ export async function validRegisterUser(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<Response | any> {
   const { name, age, cpf, password, moneyoutcoins }: IUser = req.body;
 
   const errors: string[] = [];
@@ -33,9 +33,9 @@ export async function validRegisterUser(
     errors.push('a lot of money');
   }
 
-  if (password.length < 6) {
-    errors.push('password must be at least 6 chars');
-  }
+  // if (password.length < 6) {
+  //   errors.push('password must be at least 6 chars');
+  // }
 
   if (errors.length > 0) return res.status(400).json({ msg: errors });
   next();
@@ -45,7 +45,7 @@ export async function validRegisterEnterprise(
   req: Request,
   res: Response,
   next: NextFunction
-) {
+): Promise<Response | any> {
   const { name, owners, cnpj, email, password, moneyoutcoins }: IEnterprise =
     req.body;
 

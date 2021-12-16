@@ -21,7 +21,9 @@ import { User } from '../models/user';
 
   const formatDate: string = `${Year}/${Month}/${Day}`;
 
-  const findDateEmployee: Array<IEmployee> = await Employee.find({ nextsalary: formatDate });
+  const findDateEmployee: Array<IEmployee> = await Employee.find({
+    nextsalary: formatDate,
+  });
 
   async function paymentOfSalaries() {
     const findEmployees = await Employee.findOne({ nextsalary: formatDate });

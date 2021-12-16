@@ -3,14 +3,10 @@ import { createHash } from 'crypto';
 import { HydratedDocument } from 'mongoose';
 
 import { ITransaction, Transaction } from '../models/transaction';
-import { IUser, User } from '../models/user';
+import { User } from '../models/user';
 import { ICoinCreator, CreatorCoin } from './../models/coinCreator';
 import { IWallet, Wallet } from '../models/wallet';
 import { Enterprise } from '../models/enterprise';
-import {
-  Appreciation,
-  IApperciation,
-} from '../models/appreciationOfTheCurrency';
 
 import { AppError } from '../config/AppErrors';
 
@@ -33,7 +29,7 @@ export class CoinController {
   public async createCoinUser(req: Request, res: Response): Promise<object> {
     const { namecoin, objectivecoin }: ICoinCreator = req.body;
 
-    const nameCoinExists: ICoinCreator = await CreatorCoin.findOne({ namecoin: namecoin });
+    const nameCoinExists = await CreatorCoin.findOne({ namecoin: namecoin });
     if (nameCoinExists) throw new AppError('name coin alredy exists');
 
     const NameHash = createHash('md5').update(`${namecoin}`).digest('hex');
@@ -60,18 +56,6 @@ export class CoinController {
 
     await newCoin.save();
 
-    const newAppreciation: HydratedDocument<IApperciation> = new Appreciation({
-      coin: newCoin._id,
-      nameHashCoin: newCoin.namecoinhash,
-      prevValue: {
-        value: newCoin.currentmarketvalue,
-        dateUpdate: newCoin.createdAt,
-      },
-      currentvalue: newCoin.currentmarketvalue,
-    });
-
-    await newAppreciation.save();
-
     if (valuecoin > 50000) {
       const qat: number = Math.floor(Math.random() * 20) + 3;
 
@@ -80,7 +64,9 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+        const hashCoin = createHash('sha256')
+          .update(`${anyupdate}` + i)
+          .digest('hex');
 
         // const keypair = generateKeyPairSync('rsa', {
         //   modulusLength: 2048,
@@ -97,7 +83,7 @@ export class CoinController {
 
         const newWallet: HydratedDocument<IWallet> = new Wallet({
           amount: valuecoin,
-          hash: `${NameHash}.${hashCoin.digest('hex')}`,
+          hash: `${NameHash}.${hashCoin}`,
           currentowner: req.user.id,
           publickey: publicKey,
           privatekey: privateKey,
@@ -124,7 +110,9 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+        const hashCoin = createHash('sha256')
+          .update(`${anyupdate}` + i)
+          .digest('hex');
 
         // const keypair = generateKeyPairSync('rsa', {
         //   modulusLength: 2048,
@@ -141,7 +129,7 @@ export class CoinController {
 
         const newWallet: HydratedDocument<IWallet> = new Wallet({
           amount: valuecoin,
-          hash: `${NameHash}.${hashCoin.digest('hex')}`,
+          hash: `${NameHash}.${hashCoin}`,
           currentowner: req.user.id,
           publickey: publicKey,
           privatekey: privateKey,
@@ -167,7 +155,9 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+        const hashCoin = createHash('sha256')
+          .update(`${anyupdate}` + i)
+          .digest('hex');
 
         // const keypair = generateKeyPairSync('rsa', {
         //   modulusLength: 2048,
@@ -184,7 +174,7 @@ export class CoinController {
 
         const newWallet: HydratedDocument<IWallet> = new Wallet({
           amount: valuecoin,
-          hash: `${NameHash}.${hashCoin.digest('hex')}`,
+          hash: `${NameHash}.${hashCoin}`,
           currentowner: req.user.id,
           publickey: publicKey,
           privatekey: privateKey,
@@ -210,7 +200,9 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+        const hashCoin = createHash('sha256')
+          .update(`${anyupdate}` + i)
+          .digest('hex');
 
         // const keypair = generateKeyPairSync('rsa', {
         //   modulusLength: 2048,
@@ -227,7 +219,7 @@ export class CoinController {
 
         const newWallet: HydratedDocument<IWallet> = new Wallet({
           amount: valuecoin,
-          hash: `${NameHash}.${hashCoin.digest('hex')}`,
+          hash: `${NameHash}.${hashCoin}`,
           currentowner: req.user.id,
           publickey: publicKey,
           privatekey: privateKey,
@@ -247,20 +239,25 @@ export class CoinController {
       }
     }
 
-    return res.status(200).json({ msg: 'create coin success', newCoin });
+    return res.status(201).json({ msg: 'create coin success', newCoin });
   }
-  public async myCoinAvaibleForPurchase(req: Request, res: Response): Promise<object> {
+  public async myCoinAvaibleForPurchase(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { _id, codingforbuy, privatekey }: IWallet = req.body;
 
-    const coinExist: IWallet = await Wallet.findOne({
+    const coinExist = await Wallet.findOne({
       _id: _id,
-      currentowner: req.user.id
+      currentowner: req.user.id,
     });
 
     if (!coinExist) throw new AppError('coin not exists');
 
     if (coinExist.avaibleforpurchase === false)
-      throw new AppError('This coin is not available to the market, put it up for sale, please.');
+      throw new AppError(
+        'This coin is not available to the market, put it up for sale, please.'
+      );
 
     if (coinExist.privatekey !== privatekey)
       throw new AppError('private key incorrect, or private key not exists');
@@ -276,24 +273,27 @@ export class CoinController {
       { _id: _id },
       { avaibleforpurchase: true, codingforbuy: hashCodingForBuy },
       { new: true }
-    );
+    ).select('-prevHash -transactions -__v -createdAt');
 
-    return res.status(200).json({newAFP});
+    return res.status(200).json({ newAFP });
   }
-  public async searchCoinForPurchase(req: Request, res: Response): Promise<object> {
-    const allcoins: Array<IWallet> = await Wallet.find({ avaibleforpurchase: true }).select(
-      '-prevHash -currentowner -transactions -privatekey'
-    );
+  public async searchCoinForPurchase(
+    req: Request,
+    res: Response
+  ): Promise<object> {
+    const allcoins: Array<IWallet> = await Wallet.find({
+      avaibleforpurchase: true,
+    }).select('-prevHash -currentowner -transactions -privatekey -__v -index');
 
     if (!allcoins)
       throw new AppError("looks like it doesn't have any currency available");
 
-    return res.status(200).json({allcoins});
+    return res.status(200).json({ allcoins });
   }
   public async bidCoin(req: Request, res: Response): Promise<object> {
     const { publickey, codingforbuy, amount }: IWallet = req.body;
 
-    const coinExists: IWallet = await Wallet.findOne({ publickey: publickey });
+    const coinExists = await Wallet.findOne({ publickey: publickey });
 
     if (!coinExists) throw new AppError('coin not found', 404);
 
@@ -322,12 +322,17 @@ export class CoinController {
       .status(200)
       .json({ msg: 'Transaction in progress', newTransaction });
   }
-  public async seeBidsOnMyCurrency(req: Request, res: Response): Promise<object> {
-    const coins: Array<ITransaction> = await Transaction.find({ payee: req.user.id });
+  public async seeBidsOnMyCurrency(
+    req: Request,
+    res: Response
+  ): Promise<object> {
+    const coins: Array<ITransaction> = await Transaction.find({
+      payee: req.user.id,
+    });
 
     return res.status(200).json({ coins });
   }
-  public async confirmBuyCoin(req: Request, res: Response): Promise<object> {
+  public async confirmBuyCoin(req: Request, res: Response): Promise<any> {
     const {
       privatekey,
       codingforbuy,
@@ -337,9 +342,9 @@ export class CoinController {
       hash,
     }: WT = req.body;
 
-    const coinExists: IWallet = await Wallet.findOne({
+    const coinExists = await Wallet.findOne({
       privatekey: privatekey,
-      currentowner: req.user.id
+      currentowner: req.user.id,
     });
 
     if (!coinExists) throw new AppError('private key not found', 404);
@@ -373,13 +378,13 @@ export class CoinController {
     if (confirmbuy === true) {
       const nameCoin: string = hash;
       const [nameinhash, others]: Array<string> = nameCoin.split('.');
-      const coinCreatorExist: ICoinCreator = await CreatorCoin.findOne({
+      const coinCreatorExist = await CreatorCoin.findOne({
         namecoinhash: nameinhash,
       });
 
       if (!coinCreatorExist) throw new AppError(`coin not exist`);
 
-      const newWallet: HydratedDocument<IWallet> = await Wallet.findByIdAndUpdate(
+      const newWallet = await Wallet.findByIdAndUpdate(
         { _id: _id },
         {
           $inc: { index: 1 },
@@ -394,7 +399,7 @@ export class CoinController {
         },
         { new: true }
       );
-      const newTransaction: HydratedDocument<ITransaction> = await Transaction.findOneAndUpdate(
+      const newTransaction = await Transaction.findOneAndUpdate(
         { coin: _id },
         { confirmbuy: true, buycoin: true },
         { new: true }
@@ -422,11 +427,6 @@ export class CoinController {
         { new: true }
       );
 
-      await Appreciation.findOneAndUpdate(
-        { nameHashCoin: nameinhash },
-        { $inc: { totalcoinspurchase: 1 } }
-      );
-
       return res.status(200).json({
         msg: 'transaction complete',
         newBlockchain: newWallet,
@@ -450,14 +450,17 @@ export class CoinController {
       });
     }
   }
-  public async sendMoneyWithMoneyTheCoins(req: Request, res: Response): Promise<object> {
+  public async sendMoneyWithMoneyTheCoins(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { name, amount, _id }: SendMoney = req.body;
 
-    const payeeExists: IUser = await User.findOne({ name: name });
+    const payeeExists = await User.findOne({ name: name });
 
     if (!payeeExists) throw new AppError('payee not found', 404);
 
-    const walletransactionExists: IWallet = await Wallet.findById({ _id: _id });
+    const walletransactionExists = await Wallet.findById({ _id: _id });
 
     if (!walletransactionExists) throw new AppError('coin not found', 404);
 
@@ -466,7 +469,7 @@ export class CoinController {
         "there's more money you actually have in the currency"
       );
 
-    const transactionExists: ITransaction = await Transaction.findOne({ coin: _id });
+    const transactionExists = await Transaction.findOne({ coin: _id });
 
     if (!transactionExists) throw new AppError('transaction not found', 404);
 
@@ -526,10 +529,13 @@ export class CoinController {
       updateTransaction,
     });
   }
-  public async sendMoneyWithMoneyOutCoins(req: Request, res: Response): Promise<object> {
+  public async sendMoneyWithMoneyOutCoins(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { name, amount }: SendMoney = req.body;
 
-    const payeeExists: IUser = await User.findOne({ name: name });
+    const payeeExists = await User.findOne({ name: name });
 
     if (!payeeExists) throw new AppError('payee not found', 404);
 
@@ -570,7 +576,10 @@ export class CoinController {
       newTransaction,
     });
   }
-  public async createCoinEnterprise(req: Request, res: Response): Promise<object> {
+  public async createCoinEnterprise(
+    req: Request,
+    res: Response
+  ): Promise<object> {
     const { namecoin, objectivecoin }: ICoinCreator = req.body;
 
     const nameCoinExists = await CreatorCoin.findOne({
@@ -603,12 +612,14 @@ export class CoinController {
 
     await newCoin.save();
 
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 50; i++) {
       const anyupdate = Math.random() * 99999999958;
       const publick = Math.random() * 9999999997;
       const privatek = Math.random() * 9999999996;
 
-      const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
+      const hashCoin = createHash('sha256')
+        .update(`${anyupdate}` + i)
+        .digest('hex');
 
       // const keypair = generateKeyPairSync('rsa', {
       //   modulusLength: 2048,
@@ -623,7 +634,7 @@ export class CoinController {
 
       const newWallet: HydratedDocument<IWallet> = new Wallet({
         amount: 2000,
-        hash: `${nameHash}.${hashCoin.digest('hex')}`,
+        hash: `${nameHash}.${hashCoin}`,
         currentowner: req.enterprise.id,
         publickey: publicKey,
         privatekey: privateKey,

@@ -66,13 +66,13 @@ export class ProductController {
     const products = await Product.find({
       objective: req.body.objective,
       sold: false,
-    }).select('-_id -sold -__v -createdAt -updatedAt');
+    }).select('-sold -__v -createdAt -updatedAt');
 
     if (!products) throw new AppError('product not exist');
 
-    return res.status(200).json({products});
+    return res.status(200).json({ products });
   }
-  public async buyProduct(req: Request, res: Response): Promise<object> {
+  public async buyProduct(req: Request, res: Response): Promise<any> {
     const { hash, _id, amount }: IWallet = req.body;
 
     const coinExist = await Wallet.findOne({
