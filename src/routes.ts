@@ -129,7 +129,7 @@ routes.get(
   taskController.getTasksFromMyCompany
 );
 
-routes.put('/task100numbers', authUser, taskController.taskOfTyping100Numbers);
+routes.put('/task100numbers', authUser, taskController.taskOfMakingATextWithMoreThan1000Words);
 routes.put(
   '/task1000words',
   authUser,
