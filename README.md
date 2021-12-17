@@ -36,7 +36,7 @@
     - [x] pagamento de moedas por tasks feitas
     - [x] pagamento automatico
   - in the future
-    - [] tests
+    - [x] tests (parcialmente)
     - [] mineração de novas moedas
     
  
