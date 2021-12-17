@@ -15,6 +15,7 @@
 ## Como o projeto funciona
   <p>Pessoas podem criar moedas, essas moedas pode ter um objetivo unico para ser gasta, ex: "comprar comida", e essa moeda pode comprar somente produtos que contem o mesmo objetivo. Usuarios podem comprar moedas tambem. Podem fazer transações com moedas e sem ser com moeda</p>
   <p>Empresas podem contratar, podem fazer tasks para seus funcionarios e pagar com moedas, podem fazer produtos, o pagamento é depositado automaticamente quando a aplicação estiver sendo inicializada e se estiver no dia certo e elas podem fazer moedas tambem</p>
+ 
 
 ## Tecnologias
   - Node.js version - v14.17.4
