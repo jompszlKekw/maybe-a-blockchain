@@ -5,6 +5,7 @@
 ## Table of contents
 * [Descrição / Notas](#Descrição)
 * [Como o projeto funciona](#Como-o-projeto-funciona)
+* [Instalação](#Instalação)
 * [Tecnologias](#Tecnologias)
 * [Funcionalidades](#Funcionalidades)
 
@@ -16,6 +17,20 @@
   <p>Pessoas podem criar moedas, essas moedas pode ter um objetivo unico para ser gasta, ex: "comprar comida", e essa moeda pode comprar somente produtos que contem o mesmo objetivo. Usuarios podem comprar moedas tambem. Podem fazer transações com moedas e sem ser com moeda</p>
   <p>Empresas podem contratar, podem fazer tasks para seus funcionarios e pagar com moedas, podem fazer produtos, o pagamento é depositado automaticamente quando a aplicação estiver sendo inicializada e se estiver no dia certo e elas podem fazer moedas tambem</p>
  
+## Instalação
+1. Clone o repositório
+``` 
+$ git clone https://github.com/jompszlKekw/maybe-a-blockchain.git
+```
+2. Instale as dependências
+```
+yarn ou npm install
+```
+3. Crie um arquivo .env para guardar a URL do banco MongoDB e a chave do JWT
+```
+MONGODBURL=SUA-URL
+TOKEN_SECRET=SUA-CHAVE
+```
 
 ## Tecnologias
   - Node.js version - v14.17.4
