@@ -51,12 +51,12 @@ export class EnterpriseController {
     );
 
     const newEmployee = new Employee({
-      enterprise: req.enterprise._id,
+      enterprise: newEnterprise._id,
     });
 
     await newEmployee.save();
 
-    return res.status(200).json({ newEnterprise, upOwner });
+    return res.status(201).json({ newEnterprise, upOwner });
   }
   public async login(req: Request, res: Response): Promise<void> {
     const { email, password }: IEnterprise = req.body;

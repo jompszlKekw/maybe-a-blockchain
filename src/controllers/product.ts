@@ -17,16 +17,16 @@ export class ProductController {
 
     const productExists = await Product.find({ objective: objective });
 
-    if (productExists.length > 2)
+    if (productExists.length > 6)
       throw new AppError('there are already many products with that same goal');
 
     if (quantity > 10)
       throw new AppError('has a lot of quantity, no one will buy so much not');
 
-    const objCoin = await CreatorCoin.findOne({ objectivecoin: objective });
+    // const objCoin = await CreatorCoin.findOne({ objectivecoin: objective });
 
-    if (!objCoin)
-      throw new AppError('There is no currency for that same purpose');
+    // if (!objCoin)
+    //   throw new AppError('There is no currency for that same purpose');
 
     const enterprise = await Enterprise.findOne({
       enterprise: req.enterprise.id,
@@ -45,7 +45,6 @@ export class ProductController {
         objective,
         value,
       });
-
       await newProduct.save();
 
       await Enterprise.findByIdAndUpdate(
@@ -60,7 +59,7 @@ export class ProductController {
       );
     }
 
-    return res.status(200).json({ msg: 'deu certo, confia' });
+    return res.status(201).json({ msg: 'produtos criados' });
   }
   public async searchProducts(req: Request, res: Response): Promise<object> {
     const products = await Product.find({
@@ -115,7 +114,7 @@ export class ProductController {
       const newTransaction = new Transaction({
         product: _id,
         coin: coinExist._id,
-        amount: amount,
+        amount: productExist.value,
         payer: req.user.id,
         payee: productExist.enterprise,
         buycoin: false,
@@ -130,9 +129,9 @@ export class ProductController {
       const upUser = await User.findByIdAndUpdate(
         { _id: req.user.id },
         {
-          $inc: { moneyincoins: -amount },
+          $inc: { moneyincoins: -productExist.value },
           $pull: {
-            totalcoins: { coinid: coinExist._id, namehash: nameinhash },
+            totalcoins: coinExist._id,
           },
           $push: { products: _id, transactions: newTransaction._id },
         },
@@ -142,7 +141,7 @@ export class ProductController {
       const upEnterprise = await Enterprise.findOneAndUpdate(
         { _id: productExist.enterprise },
         {
-          $inc: { moneyoutcoins: amount },
+          $inc: { moneyoutcoins: productExist.value },
           $push: { transactions: newTransaction._id },
           $pull: { products: { name: productExist.name, product: _id } },
         },
@@ -167,39 +166,31 @@ export class ProductController {
         upProduct,
       });
     } else if (coinExist.amount > productExist.value) {
-      const anyupdate = Math.random() * 9999999997;
-      const publick = Math.random() * 9999999998;
-      const privatek = Math.random() * 9999999991;
-
-      const hashCoin = createHash('sha256')
-        .update(`${anyupdate}`)
-        .digest('hex');
-      const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-      const privateKey = createHash('sha256')
-        .update(`${privatek}`)
-        .digest('hex');
-
       const newTransaction = new Transaction({
         product: _id,
-        amount: amount,
+        coin: coinExist._id,
+        amount: productExist.value,
         payer: req.user.id,
         payee: productExist.enterprise,
         buycoin: false,
       });
       await newTransaction.save();
 
-      const nameCoin: string = hash;
-      const [nameinhash] = nameCoin.split('.');
-      const coinCreatorExist = await CreatorCoin.findOne({
-        namecoinhash: nameinhash,
-      });
+      const anyupdate = Math.random() * 9999999997;
+      const publick = Math.random() * 9999999998;
+      const privatek = Math.random() * 9999999991;
 
-      if (!coinCreatorExist) throw new AppError(`coin not exist`);
-
+      const hashCoin = createHash('sha512')
+        .update(`${anyupdate}`)
+        .digest('hex');
+      const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+      const privateKey = createHash('sha512')
+        .update(`${privatek}`)
+        .digest('hex');
       const upWallet = await Wallet.findOneAndUpdate(
         { hash: hash },
         {
-          $inc: { index: 1, amount: -amount },
+          $inc: { index: 1, amount: -productExist.value },
           $push: { prevHash: hash, transactions: newTransaction._id },
           hash: `${nameinhash}.${hashCoin}`,
           publickey: publicKey,
@@ -212,7 +203,7 @@ export class ProductController {
       const upUser = await User.findByIdAndUpdate(
         { _id: req.user.id },
         {
-          $inc: { moneyincoins: -amount },
+          $inc: { moneyincoins: -productExist.value },
           $push: { products: _id, transactions: newTransaction._id },
         },
         { new: true }
@@ -221,7 +212,7 @@ export class ProductController {
       const upEnterprise = await Enterprise.findOneAndUpdate(
         { _id: productExist.enterprise },
         {
-          $inc: { moneyoutcoins: amount },
+          $inc: { moneyoutcoins: productExist.value },
           $pull: { products: { name: productExist.name, product: _id } },
         },
         { new: true }

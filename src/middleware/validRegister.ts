@@ -33,9 +33,9 @@ export async function validRegisterUser(
     errors.push('a lot of money');
   }
 
-  // if (password.length < 6) {
-  //   errors.push('password must be at least 6 chars');
-  // }
+  if (password?.length < 6) {
+    errors.push('password must be at least 6 chars');
+  }
 
   if (errors.length > 0) return res.status(400).json({ msg: errors });
   next();
@@ -77,7 +77,7 @@ export async function validRegisterEnterprise(
     errors.push('a lot of money');
   }
 
-  if (password.length < 6) {
+  if (password?.length < 6) {
     errors.push('password must be at least 6 chars');
   }
 

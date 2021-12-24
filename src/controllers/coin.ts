@@ -64,7 +64,7 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256')
+        const hashCoin = createHash('sha512')
           .update(`${anyupdate}` + i)
           .digest('hex');
 
@@ -74,10 +74,10 @@ export class CoinController {
         //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         // })
 
-        const publicKey = createHash('sha256')
+        const publicKey = createHash('sha512')
           .update(`${publick}`)
           .digest('hex');
-        const privateKey = createHash('sha256')
+        const privateKey = createHash('sha512')
           .update(`${privatek}`)
           .digest('hex');
 
@@ -95,14 +95,14 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: {
-              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+              totalcoins: newWallet._id,
             },
             $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
       }
-    } else if (valuecoin > 20000) {
+    } else if (valuecoin > 20000 || valuecoin < 50000) {
       const qat: number = Math.floor(Math.random() * 40) + 15;
 
       for (let i = 0; i < qat; i++) {
@@ -110,7 +110,7 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256')
+        const hashCoin = createHash('sha512')
           .update(`${anyupdate}` + i)
           .digest('hex');
 
@@ -120,10 +120,10 @@ export class CoinController {
         //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         // })
 
-        const publicKey = createHash('sha256')
+        const publicKey = createHash('sha512')
           .update(`${publick}`)
           .digest('hex');
-        const privateKey = createHash('sha256')
+        const privateKey = createHash('sha512')
           .update(`${privatek}`)
           .digest('hex');
 
@@ -140,14 +140,14 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: {
-              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+              totalcoins: newWallet._id,
             },
             $inc: { moneyincoins: newWallet.amount },
           },
           { new: true }
         );
       }
-    } else if (valuecoin > 7500) {
+    } else if (valuecoin > 7500 || valuecoin < 20000) {
       const qat: number = Math.floor(Math.random() * 80) + 30;
 
       for (let i = 0; i < qat; i++) {
@@ -155,7 +155,7 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256')
+        const hashCoin = createHash('sha512')
           .update(`${anyupdate}` + i)
           .digest('hex');
 
@@ -165,10 +165,10 @@ export class CoinController {
         //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         // })
 
-        const publicKey = createHash('sha256')
+        const publicKey = createHash('sha512')
           .update(`${publick}`)
           .digest('hex');
-        const privateKey = createHash('sha256')
+        const privateKey = createHash('sha512')
           .update(`${privatek}`)
           .digest('hex');
 
@@ -185,7 +185,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: {
-              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+              totalcoins: newWallet._id,
             },
             $inc: { moneyincoins: newWallet.amount },
           },
@@ -200,7 +200,7 @@ export class CoinController {
         const publick = Math.random() * 9999999997;
         const privatek = Math.random() * 9999999996;
 
-        const hashCoin = createHash('sha256')
+        const hashCoin = createHash('sha512')
           .update(`${anyupdate}` + i)
           .digest('hex');
 
@@ -210,10 +210,10 @@ export class CoinController {
         //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
         // })
 
-        const publicKey = createHash('sha256')
+        const publicKey = createHash('sha512')
           .update(`${publick}`)
           .digest('hex');
-        const privateKey = createHash('sha256')
+        const privateKey = createHash('sha512')
           .update(`${privatek}`)
           .digest('hex');
 
@@ -230,7 +230,7 @@ export class CoinController {
           { _id: req.user.id },
           {
             $push: {
-              totalcoins: { coinid: newWallet._id, namehash: NameHash },
+              totalcoins: newWallet._id,
             },
             $inc: { moneyincoins: newWallet.amount },
           },
@@ -304,7 +304,7 @@ export class CoinController {
       throw new AppError('small money');
 
     const mathcoding = Math.random() * 9999999999;
-    const codinghash = createHash('sha256')
+    const codinghash = createHash('sha512')
       .update(`${mathcoding}`)
       .digest('hex');
 
@@ -371,9 +371,9 @@ export class CoinController {
     const publick = Math.random() * 9999999998;
     const privatek = Math.random() * 9999999991;
 
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
+    const hashCoin = createHash('sha512').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha512').update(`${privatek}`).digest('hex');
 
     if (confirmbuy === true) {
       const nameCoin: string = hash;
@@ -411,7 +411,7 @@ export class CoinController {
             moneyoutcoins: -transactionExists.amount,
             moneyincoins: transactionExists.amount,
           },
-          $push: { totalcoins: { coinid: _id, namehash: nameinhash } },
+          $push: { totalcoins: _id },
         },
         { new: true }
       );
@@ -422,7 +422,7 @@ export class CoinController {
             moneyoutcoins: transactionExists.amount,
             moneyincoins: -transactionExists.amount,
           },
-          $pull: { totalcoins: { coinid: _id, namehash: nameinhash } },
+          $pull: { totalcoins: _id },
         },
         { new: true }
       );
@@ -469,65 +469,112 @@ export class CoinController {
         "there's more money you actually have in the currency"
       );
 
-    const transactionExists = await Transaction.findOne({ coin: _id });
-
-    if (!transactionExists) throw new AppError('transaction not found', 404);
-
-    const anyupdate = Math.random() * 9999999999;
-
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-
-    const updatePayer = await User.findByIdAndUpdate(
-      { _id: req.user.id },
-      { $inc: { moneyincoins: -amount } },
-      { new: true }
-    );
-
-    const updatePayee = await User.findByIdAndUpdate(
-      { _id: payeeExists._id },
-      { $inc: { moneyoutcoins: amount } },
-      { new: true }
-    );
-
-    const nameCoin: string = walletransactionExists.hash;
-    const [nameinhash] = nameCoin.split('.');
-    const coinCreatorExist = await CreatorCoin.findOne({
-      namecoinhash: nameinhash,
+    const newTransaction: HydratedDocument<ITransaction> = new Transaction({
+      coin: _id,
     });
 
-    if (!coinCreatorExist) throw new AppError(`coin not exist`);
+    await newTransaction.save();
 
-    const coinpayer = await Wallet.findByIdAndUpdate(
-      { _id: _id },
-      {
-        $inc: { amount: -amount, index: 1 },
-        $push: {
-          prevHash: walletransactionExists.hash,
-          transactions: transactionExists._id,
+    if (walletransactionExists.amount === amount) {
+      const updatePayer = await User.findByIdAndUpdate(
+        { _id: req.user.id },
+        {
+          $inc: { moneyincoins: -amount },
+          $push: { transactions: newTransaction._id },
+          $pull: { totalcoins: walletransactionExists._id },
         },
-        hash: `${nameinhash}.${hashCoin}`,
-      },
-      { new: true }
-    );
+        { new: true }
+      );
+      const updatePayee = await User.findByIdAndUpdate(
+        { _id: payeeExists._id },
+        {
+          $inc: { moneyoutcoins: amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
 
-    const updateTransaction = await Transaction.findOneAndUpdate(
-      { coin: _id },
-      {
-        coin: _id,
-        amount: amount,
-        payer: req.user.id,
-        payee: payeeExists._id,
-        buycoin: false,
-      },
-      { new: true }
-    );
-    return res.status(200).json({
-      msg: 'money sent',
-      updatePayer,
-      updatePayee,
-      coinpayer,
-      updateTransaction,
-    });
+      await Wallet.findByIdAndDelete({ _id: _id });
+
+      const updateTransaction = await Transaction.findByIdAndUpdate(
+        { _id: newTransaction._id },
+        {
+          amount: amount,
+          payer: req.user.id,
+          payee: payeeExists._id,
+          buycoin: false,
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        msg: 'money sent',
+        updatePayer,
+        updatePayee,
+        updateTransaction,
+      });
+    } else {
+      const updatePayer = await User.findByIdAndUpdate(
+        { _id: req.user.id },
+        {
+          $inc: { moneyincoins: -amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
+
+      const updatePayee = await User.findByIdAndUpdate(
+        { _id: payeeExists._id },
+        {
+          $inc: { moneyoutcoins: amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
+
+      const anyupdate = Math.random() * 9999999999;
+      const hashCoin = createHash('sha512')
+        .update(`${anyupdate}`)
+        .digest('hex');
+      const nameCoin: string = walletransactionExists.hash;
+      const [nameinhash] = nameCoin.split('.');
+      const coinCreatorExist = await CreatorCoin.findOne({
+        namecoinhash: nameinhash,
+      });
+      if (!coinCreatorExist) throw new AppError(`coin not exist`);
+
+      const coinpayer = await Wallet.findByIdAndUpdate(
+        { _id: _id },
+        {
+          $inc: { amount: -amount, index: 1 },
+          $push: {
+            prevHash: walletransactionExists.hash,
+            transactions: newTransaction._id,
+          },
+          hash: `${nameinhash}.${hashCoin}`,
+        },
+        { new: true }
+      );
+
+      const updateTransaction = await Transaction.findByIdAndUpdate(
+        { _id: newTransaction._id },
+        {
+          amount: amount,
+          payer: req.user.id,
+          payee: payeeExists._id,
+          buycoin: false,
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({
+        msg: 'money sent',
+        updatePayer,
+        updatePayee,
+        coinpayer,
+        updateTransaction,
+      });
+    }
   }
   public async sendMoneyWithMoneyOutCoins(
     req: Request,
@@ -539,7 +586,7 @@ export class CoinController {
 
     if (!payeeExists) throw new AppError('payee not found', 404);
 
-    if (req.user.moneyoutcoins < amount)
+    if (req.user.moneyoutcoins < amount || amount === 0)
       throw new AppError("there's more money there that you really have");
 
     const newTransaction: HydratedDocument<ITransaction> = new Transaction({
@@ -592,7 +639,7 @@ export class CoinController {
 
     const objcoin = await CreatorCoin.find({ objectivecoin: objectivecoin });
 
-    if (objcoin.length > 2)
+    if (objcoin.length > 6)
       throw new AppError(
         'there are already many coins created for the same purpose'
       );
@@ -603,7 +650,7 @@ export class CoinController {
       );
 
     const newCoin: HydratedDocument<ICoinCreator> = new CreatorCoin({
-      namecreator: req.enterprise.name,
+      nameEnterprise: req.enterprise.name,
       namecoin,
       namecoinhash: nameHash,
       objectivecoin,
@@ -617,7 +664,7 @@ export class CoinController {
       const publick = Math.random() * 9999999997;
       const privatek = Math.random() * 9999999996;
 
-      const hashCoin = createHash('sha256')
+      const hashCoin = createHash('sha512')
         .update(`${anyupdate}` + i)
         .digest('hex');
 
@@ -627,8 +674,8 @@ export class CoinController {
       //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
       // })
 
-      const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-      const privateKey = createHash('sha256')
+      const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+      const privateKey = createHash('sha512')
         .update(`${privatek}`)
         .digest('hex');
 
@@ -646,7 +693,7 @@ export class CoinController {
         { _id: req.enterprise._id },
         {
           $push: { coins: newWallet._id },
-          $inc: { moneyoutcoins: -100000, moneyincoins: newWallet.amount },
+          $inc: { moneyoutcoins: -2000, moneyincoins: newWallet.amount },
         }
       );
     }

@@ -102,9 +102,9 @@ export class TaskEmployee {
     const publick = Math.random() * 9999999998;
     const privatek = Math.random() * 9999999991;
 
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
+    const hashCoin = createHash('sha512').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha512').update(`${privatek}`).digest('hex');
 
     const nameCoin: string = findCoin.hash;
     const [nameinhash] = nameCoin.split('.');
@@ -134,7 +134,7 @@ export class TaskEmployee {
       {
         $inc: { moneyincoins: findCoin.amount },
         $push: {
-          totalcoins: { coinid: findTask.reward, namehash: nameinhash },
+          totalcoins: findTask.reward,
         },
       },
       { new: true }
@@ -182,9 +182,9 @@ export class TaskEmployee {
     const publick = Math.random() * 9999999998;
     const privatek = Math.random() * 9999999991;
 
-    const hashCoin = createHash('sha256').update(`${anyupdate}`).digest('hex');
-    const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-    const privateKey = createHash('sha256').update(`${privatek}`).digest('hex');
+    const hashCoin = createHash('sha512').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha512').update(`${privatek}`).digest('hex');
 
     const nameCoin: string = findCoin.hash;
     const [nameinhash] = nameCoin.split('.');
@@ -214,7 +214,7 @@ export class TaskEmployee {
       {
         $inc: { moneyincoins: findCoin.amount },
         $push: {
-          totalcoins: { coinid: findTask.reward, namehash: nameinhash },
+          totalcoins: findTask.reward,
         },
       },
       { new: true }

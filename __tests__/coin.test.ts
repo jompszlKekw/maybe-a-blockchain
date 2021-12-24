@@ -1,16 +1,12 @@
 import 'dotenv/config';
-import { app } from '../src/app';
-import request from 'supertest';
 import { connect, connection } from 'mongoose';
+import { createHash } from 'crypto';
 
 import { IUser, User } from '../src/models/user';
 import { IWallet, Wallet } from '../src/models/wallet';
 import { CreatorCoin, ICoinCreator } from '../src/models/coinCreator';
-import { createHash } from 'crypto';
-import { generateTokenForTests } from '../src/middleware/auth';
 import { Transaction } from '../src/models/transaction';
 
-let token: string;
 let user: IUser;
 let creatorcoin: ICoinCreator;
 let wallets: IWallet;
@@ -41,33 +37,32 @@ describe('Coin controller', () => {
       moneyoutcoins: 100000,
     } as const;
     user = await new User(defaultUser).save();
-    token = generateTokenForTests(user.toJSON());
 
-    const NameHash = createHash('md5').update(`test`).digest('hex');
-    const defaultCreatorCoin = {
-      namecreator: defaultUser.name,
+    const NameHash = createHash('md5').update(`testCoins`).digest('hex');
+    creatorcoin = await CreatorCoin.create({
+      namecreator: user.name,
       namecoin: 'test',
       namecoinhash: NameHash,
       objectivecoin: 'comprar jogos',
       currentmarketvalue: 10000,
-    } as const;
-    creatorcoin = await new CreatorCoin(defaultCreatorCoin).save();
+    });
     for (let i = 0; i < 10; i++) {
       const anyupdate = Math.random() * 9999999998;
       const publick = Math.random() * 9999999997;
       const privatek = Math.random() * 9999999996;
 
-      const hashCoin = createHash('sha256')
+      const hashCoin = createHash('sha512')
         .update(`${anyupdate}` + i)
         .digest('hex');
 
-      const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-      const privateKey = createHash('sha256')
+      const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+      const privateKey = createHash('sha512')
         .update(`${privatek}`)
         .digest('hex');
 
       const newWallets = {
         amount: 10000,
+        // 100k
         hash: `${NameHash}.${hashCoin}`,
         currentowner: user._id,
         publickey: publicKey,
@@ -78,10 +73,10 @@ describe('Coin controller', () => {
       wallets = await new Wallet(newWallets).save();
 
       await User.findOneAndUpdate(
-        { _id: user._id },
+        { _id: user.id },
         {
           $push: {
-            totalcoins: { coinid: wallets._id, namehash: NameHash },
+            totalcoins: wallets._id,
           },
           $inc: { moneyincoins: wallets.amount },
         },
@@ -90,267 +85,353 @@ describe('Coin controller', () => {
     }
   });
 
-  it('criar user e o creator user', async () => {
-    const infosCoin = {
-      namecoin: 'testcreator',
-      objectivecoin: 'buy coins in games',
-    } as const;
-
-    const creatorCoin = await request(app)
-      .post('/createcoin')
-      .auth(token, { type: 'bearer' })
-      .expect('Content-Type', /json/)
-      .send(infosCoin);
-
-    const duplicateCoin = await request(app)
-      .post('/createcoin')
-      .auth(token, { type: 'bearer' })
-      .expect('Content-Type', /json/)
-      .send(infosCoin);
-
-    const NameHash = createHash('md5')
-      .update(`${infosCoin.namecoin}`)
-      .digest('hex');
-    const valuecoin = Math.floor(Math.random() * 100000);
-
-    if (valuecoin > 50000) {
-      for (let i = 0; i < 5; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha256')
-          .update(`${anyupdate}` + i)
-          .digest('hex');
-
-        const publicKey = createHash('sha256')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha256')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallets = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: user._id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-
-        await newWallets.save();
-        expect(newWallets.amount).toBe(valuecoin);
-        expect(newWallets.hash).toBe(`${NameHash}.${hashCoin}`);
-        expect(newWallets.currentowner).toBe(user._id);
-        expect(newWallets.publickey).toBe(publicKey);
-        expect(newWallets.privatekey).toBe(privateKey);
-
-        await User.findOneAndUpdate(
-          { _id: user._id },
-          {
-            $push: {
-              totalcoins: { coinid: newWallets._id, namehash: NameHash },
-            },
-            $inc: { moneyincoins: newWallets.amount },
-          },
-          { new: true }
-        );
-      }
-    } else {
-      for (let i = 0; i < 10; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha256').update(`${anyupdate}` + i);
-
-        const publicKey = createHash('sha256')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha256')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallets = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: user._id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-
-        await newWallets.save();
-        expect(newWallets.amount).toBe(valuecoin);
-        expect(newWallets.hash).toBe(`${NameHash}.${hashCoin}`);
-        expect(newWallets.currentowner).toBe(user._id);
-        expect(newWallets.publickey).toBe(publicKey);
-        expect(newWallets.privatekey).toBe(privateKey);
-
-        await User.findOneAndUpdate(
-          { _id: user._id },
-          {
-            $push: {
-              totalcoins: { coinid: newWallets._id, namehash: NameHash },
-            },
-            $inc: { moneyincoins: newWallets.amount },
-          },
-          { new: true }
-        );
-      }
-    }
-
-    expect(creatorCoin.status).toEqual(201);
-    expect(duplicateCoin.status).toEqual(400);
-  });
-
-  it('fazer transação', async () => {
-    const UserBid = new User({
+  it('POST /codingtransaction && PUT /confirmbuycoin - buy coin', async () => {
+    // POST /codingtransaction
+    const UserBid = await User.create({
       name: 'lucas',
       age: 20,
       cpf: '829.705.563-90',
       password: '123456',
       moneyoutcoins: 100000,
     });
-    await UserBid.save();
-    const tokenNewUser = generateTokenForTests(UserBid.toJSON());
 
     const findAnWallet = await Wallet.findOne({});
-    if (!findAnWallet) throw new Error('não foi criado nenhuma wallet');
+    if (!findAnWallet) throw new Error('no wallet was created');
+
     const infosBuy = {
       publickey: findAnWallet.publickey,
       codingforbuy: 'codingtest',
       amount: 10000,
     } as const;
-    const bidRequest = await request(app)
-      .put('/codingtransaction')
-      .auth(tokenNewUser, { type: 'bearer' })
-      .send(infosBuy);
+
     const mathcoding = Math.random() * 9999999999;
-    const codinghash = createHash('sha256')
+    const codinghash = createHash('sha512')
       .update(`${mathcoding}`)
       .digest('hex');
     const newTransaction = new Transaction({
       coin: findAnWallet._id,
-      amount: 10000,
+      amount: infosBuy.amount,
       payer: UserBid._id,
       payee: wallets.currentowner,
       codingconfirm: codinghash,
     });
     await newTransaction.save();
+    expect(newTransaction.coin).toBe(findAnWallet._id);
+    expect(newTransaction.amount).toBe(infosBuy.amount);
+    expect(newTransaction.payer).toEqual(
+      expect.stringContaining(`${UserBid._id}`)
+    );
+    expect(newTransaction.payee).toEqual(
+      expect.stringContaining(`${wallets.currentowner}`)
+    );
+    expect(newTransaction.codingconfirm).toBe(codinghash);
 
-    const myBidCoins = await request(app)
-      .get('/seebidsonmycurrency')
-      .auth(token, { type: 'bearer' })
-      .expect(200);
+    // PUT /confirmbuycoin
+    const confirmBuy = {
+      privatekey: findAnWallet?.privatekey,
+      cofingforbuy: findAnWallet?.codingforbuy,
+      codingconfirm: newTransaction.codingconfirm,
+      confirmbuy: true,
+      _id: findAnWallet?.id,
+      hash: findAnWallet?.hash,
+    } as const;
 
-    async function twostep() {
-      const confirmBuy = {
-        privatekey: findAnWallet?.privatekey,
-        cofingforbuy: findAnWallet?.codingforbuy,
-        codingconfirm: newTransaction.codingconfirm,
-        confirmbuy: true,
-        _id: findAnWallet?._id,
-        hash: findAnWallet?.hash,
-      } as const;
+    const anyupdate = Math.random() * 9999999999;
+    const publick = Math.random() * 9999999999;
+    const privatek = Math.random() * 9999999999;
+    const hashCoin = createHash('sha512').update(`${anyupdate}`).digest('hex');
+    const publicKey = createHash('sha512').update(`${publick}`).digest('hex');
+    const privateKey = createHash('sha512').update(`${privatek}`).digest('hex');
 
-      const requestConfirmBuy = await request(app)
-        .put('/confirmbuycoin')
-        .auth(token, { type: 'bearer' })
-        .send(confirmBuy);
+    if (confirmBuy.confirmbuy === true) {
+      const upWallet = await Wallet.findByIdAndUpdate(
+        { _id: confirmBuy._id },
+        {
+          $inc: { index: 1 },
+          $push: {
+            prevHash: confirmBuy.hash,
+            transactions: newTransaction._id,
+          },
+          hash: `${creatorcoin.namecoinhash}.${hashCoin}`,
+          currentowner: UserBid.id,
+          avaibleforpurchase: false,
+          publickey: publicKey,
+          privatekey: privateKey,
+          update: new Date(),
+          $unset: { codingforbuy: '' },
+        },
+        { new: true }
+      );
+      expect(upWallet?.prevHash).toContainEqual(confirmBuy.hash);
+      expect(upWallet?.transactions).toContainEqual(newTransaction._id);
+      expect(upWallet?.hash).toEqual(`${creatorcoin.namecoinhash}.${hashCoin}`);
+      expect(upWallet?.currentowner).toEqual(
+        expect.stringContaining(`${UserBid._id}`)
+      );
+      expect(upWallet?.avaibleforpurchase).toBe(false);
+      expect(upWallet?.publickey).toEqual(publicKey);
+      expect(upWallet?.privatekey).toEqual(privateKey);
+      expect(upWallet?.codingforbuy).toBeFalsy();
+
+      const upTransaction = await Transaction.findOneAndUpdate(
+        { coin: confirmBuy._id },
+        { confirmbuy: true, buycoin: true },
+        { new: true }
+      );
+      expect(upTransaction?.confirmbuy).toBe(true);
+      expect(upTransaction?.buycoin).toBe(true);
+
+      const upUserBid = await User.findByIdAndUpdate(
+        { _id: newTransaction.payer },
+        {
+          $inc: {
+            moneyoutcoins: -newTransaction.amount,
+            moneyincoins: newTransaction.amount,
+          },
+          $push: { totalcoins: confirmBuy._id },
+        },
+        { new: true }
+      );
+      const subMoney = UserBid.moneyoutcoins - infosBuy.amount;
+      expect(upUserBid?.moneyoutcoins).toBe(subMoney);
+      expect(upUserBid?.moneyincoins).toBe(newTransaction.amount);
+      expect(upUserBid?.totalcoins).toContainEqual(confirmBuy._id);
+
+      const findUserPayee = await User.findById({ _id: newTransaction.payee });
+      if (!findUserPayee) throw new Error('default user not created');
+      const upUser = await User.findByIdAndUpdate(
+        { _id: newTransaction.payee },
+        {
+          $inc: {
+            moneyoutcoins: newTransaction.amount,
+            moneyincoins: -newTransaction.amount,
+          },
+          $pull: { totalcoins: confirmBuy._id },
+        },
+        { new: true }
+      );
+      const someMoney = findUserPayee.moneyoutcoins + infosBuy.amount;
+      expect(upUser?.moneyoutcoins).toBe(someMoney);
+      const subMoneyincoins =
+        findUserPayee.moneyincoins - newTransaction.amount;
+      expect(upUser?.moneyincoins).toBe(subMoneyincoins);
+      expect(upUser?.totalcoins).toEqual(
+        expect.not.stringContaining(confirmBuy._id)
+      );
+    } else if (confirmBuy.confirmbuy === false) {
+      const upWallet = await Wallet.findByIdAndUpdate(
+        { _id: confirmBuy._id },
+        { avaibleforpurchase: false },
+        { new: true }
+      );
+      expect(upWallet?.avaibleforpurchase).toBe(false);
+
+      await Transaction.findOneAndDelete({ coin: confirmBuy._id });
+    }
+  });
+
+  it('PUT /sendmoneycoins - money transaction with a coin', async () => {
+    const newUser = new User({
+      name: 'lucas',
+      age: 20,
+      cpf: '829.705.563-90',
+      password: '123456',
+    });
+    await newUser.save();
+
+    const findIdWallet = await Wallet.findOne({});
+    if (!findIdWallet) throw new Error('no wallet was created');
+
+    const infosTransaction = {
+      name: 'lucas',
+      amount: 10000 /**1000 */,
+      _id: findIdWallet._id,
+    } as const;
+
+    const newTransaction = new Transaction({
+      coin: infosTransaction._id,
+    });
+    await newTransaction.save();
+    expect(newTransaction.coin).toBe(infosTransaction._id);
+
+    const findDefaultUser = await User.findById({ _id: user._id });
+    if (!findDefaultUser) throw new Error('default user not created');
+    if (findIdWallet.amount === infosTransaction.amount) {
+      const upTransaction = await Transaction.findOneAndUpdate(
+        { coin: findIdWallet._id },
+        {
+          amount: infosTransaction.amount,
+          payer: user._id,
+          payee: newUser._id,
+          buycoin: false,
+        },
+        { new: true }
+      );
+      expect(upTransaction?.amount).toEqual(infosTransaction.amount);
+      expect(upTransaction?.payer).toEqual(
+        expect.stringContaining(`${user._id}`)
+      );
+      expect(upTransaction?.payee).toEqual(
+        expect.stringContaining(`${newUser._id}`)
+      );
+      expect(upTransaction?.buycoin).toEqual(false);
+
+      const upPayer = await User.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          $inc: { moneyincoins: -infosTransaction.amount },
+          $push: { transactions: newTransaction._id },
+          $pull: { totalcoins: findIdWallet._id },
+        },
+        { new: true }
+      );
+      const subMoneyUser: number =
+        findDefaultUser.moneyincoins - infosTransaction.amount;
+      expect(upPayer?.moneyincoins).toEqual(subMoneyUser);
+      expect(upPayer?.transactions).toContainEqual(upTransaction?._id);
+      expect(upPayer?.totalcoins).not.toContainEqual(findIdWallet._id);
+
+      const upPayee = await User.findByIdAndUpdate(
+        { _id: newUser._id },
+        {
+          $inc: { moneyoutcoins: infosTransaction.amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
+      expect(upPayee?.moneyoutcoins).toEqual(infosTransaction.amount);
+      expect(upPayee?.transactions).toContainEqual(upTransaction?._id);
+
+      await Wallet.findByIdAndDelete({
+        _id: infosTransaction._id,
+      });
+    } else {
+      const upTransaction = await Transaction.findOneAndUpdate(
+        { coin: findIdWallet._id },
+        {
+          amount: infosTransaction.amount,
+          payer: user._id,
+          payee: newUser._id,
+          buycoin: false,
+        }
+      );
+      expect(upTransaction?.amount).toEqual(infosTransaction.amount);
+      expect(upTransaction?.payer).toEqual(
+        expect.stringContaining(`${user._id}`)
+      );
+      expect(upTransaction?.payee).toEqual(
+        expect.stringContaining(`${newUser._id}`)
+      );
+      expect(upTransaction?.buycoin).toEqual(false);
+
+      const upPayer = await User.findByIdAndUpdate(
+        { _id: user._id },
+        {
+          $inc: { moneyincoins: -infosTransaction.amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
+      const subMoneyUser: number =
+        findDefaultUser.moneyincoins - infosTransaction.amount;
+      expect(upPayer?.moneyincoins).toEqual(subMoneyUser);
+      expect(upPayer?.transactions).toContainEqual(upTransaction?._id);
+
+      const upPayee = await User.findByIdAndUpdate(
+        { _id: newUser._id },
+        {
+          $inc: { moneyoutcoins: infosTransaction.amount },
+          $push: { transactions: newTransaction._id },
+        },
+        { new: true }
+      );
+      expect(upPayee?.moneyoutcoins).toEqual(infosTransaction.amount);
+      expect(upPayee?.transactions).toContainEqual(upTransaction?._id);
 
       const anyupdate = Math.random() * 9999999999;
-      const publick = Math.random() * 9999999999;
-      const privatek = Math.random() * 9999999999;
-
-      const hashCoin = createHash('sha256')
+      const hashCoin = createHash('sha512')
         .update(`${anyupdate}`)
         .digest('hex');
-      const publicKey = createHash('sha256').update(`${publick}`).digest('hex');
-      const privateKey = createHash('sha256')
-        .update(`${privatek}`)
-        .digest('hex');
-
-      if (confirmBuy.confirmbuy === true) {
-        await Wallet.findByIdAndUpdate(
-          { _id: confirmBuy._id },
-          {
-            $inc: { index: 1 },
-            $push: {
-              prevHash: confirmBuy.hash,
-              transactions: newTransaction._id,
-            },
-            hash: `${creatorcoin.namecoinhash}.${hashCoin}`,
-            currentowner: newTransaction.payer,
-            avaibleforpurchase: false,
-            publickey: publicKey,
-            privatekey: privateKey,
-            update: new Date(),
-            $unset: { confirm: '' },
+      const nameCoin: string = findIdWallet.hash;
+      const [nameinhash] = nameCoin.split('.');
+      const coinCreatorExist = await CreatorCoin.findOne({
+        namecoinhash: nameinhash,
+      });
+      if (!coinCreatorExist) throw new Error(`coin not exist`);
+      const upWallet = await Wallet.findByIdAndUpdate(
+        { _id: infosTransaction._id },
+        {
+          $inc: { amount: -infosTransaction.amount, index: 1 },
+          $push: {
+            prevHash: findIdWallet.hash,
+            transactions: newTransaction._id,
           },
-          { new: true }
-        );
-        await Transaction.findOneAndUpdate(
-          { coin: confirmBuy._id },
-          { confirmbuy: true, buycoin: true },
-          { new: true }
-        );
-        // UserBid
-        await User.findByIdAndUpdate(
-          { _id: newTransaction.payer },
-          {
-            $inc: {
-              moneyoutcoins: -newTransaction.amount,
-              moneyincoins: newTransaction.amount,
-            },
-            $push: { totalcoins: confirmBuy._id },
-          },
-          { new: true }
-        );
-        // user
-        await User.findByIdAndUpdate(
-          { _id: newTransaction.payee },
-          {
-            $inc: {
-              moneyoutcoins: newTransaction.amount,
-              moneyincoins: -newTransaction.amount,
-            },
-            $pull: { totalcoins: confirmBuy._id },
-          },
-          { new: true }
-        );
-        expect(requestConfirmBuy.status).toEqual(200);
-        expect(findAnWallet?.currentowner).toBe(newTransaction.payer);
-        expect(findAnWallet?.hash).toBe(hashCoin);
-        expect(newTransaction.confirmbuy).toBe(true);
-        expect(UserBid.moneyoutcoins).toBe(90000);
-        expect(UserBid.totalcoins).toHaveProperty('totalcoins', confirmBuy._id);
-        expect(user.moneyoutcoins).toBe(110000);
-        expect(user.totalcoins).toEqual(
-          expect.not.stringContaining(confirmBuy._id)
-        );
-      } else if (confirmBuy.confirmbuy === false) {
-        await Wallet.findByIdAndUpdate(
-          { _id: confirmBuy._id },
-          { avaibleforpurchase: false },
-          { new: true }
-        );
-        await Transaction.findOneAndDelete({ coin: confirmBuy._id });
-
-        expect(findAnWallet?.avaibleforpurchase).toBe(false);
-      }
-      expect(requestConfirmBuy.status).toEqual(200);
+          hash: `${nameinhash}.${hashCoin}`,
+        },
+        { new: true }
+      );
+      const subMoneyWallet: number =
+        findIdWallet.amount - infosTransaction.amount;
+      expect(upWallet?.amount).toEqual(subMoneyWallet);
+      expect(upWallet?.prevHash).toContainEqual(findIdWallet.hash);
+      expect(upWallet?.transactions).toContainEqual(upTransaction?._id);
+      expect(upWallet?.hash).toBe(`${nameinhash}.${hashCoin}`);
     }
+  });
 
-    setTimeout(twostep, 5000);
+  it('PUT /sendmoneyoutocoins - standard money transaction', async () => {
+    const newUser = new User({
+      name: 'lucas',
+      age: 20,
+      cpf: '829.705.563-90',
+      password: '123456',
+    });
+    await newUser.save();
 
-    expect(bidRequest.status).toEqual(200);
-    expect(myBidCoins.status).toEqual(200);
+    const infosTransaction = { name: 'lucas', amount: 1000 } as const;
 
-    // expect(findAnWallet.currentowner).toBe(newTransaction.payer)
-    // expect(newTransaction.confirmbuy).toBe(true)
-    // expect(UserBid.moneyoutcoins).toBe(90000)
-    // expect(UserBid.totalcoins).toHaveProperty('totalcoins', confirmBuy._id)
-    // expect(user.moneyoutcoins).toBe(110000)
-    // expect(user.totalcoins).toEqual(expect.not.stringContaining(confirmBuy._id))
+    if (user.moneyoutcoins < infosTransaction.amount)
+      throw new Error('user has less money');
+
+    const newTransaction = new Transaction({
+      amount: infosTransaction.amount,
+      payer: user._id,
+      payee: newUser._id,
+      buycoin: false,
+    });
+    await newTransaction.save();
+    expect(newTransaction.amount).toEqual(infosTransaction.amount);
+    expect(newTransaction.payer).toEqual(
+      expect.stringContaining(`${user._id}`)
+    );
+    expect(newTransaction.payee).toEqual(
+      expect.stringContaining(`${newUser._id}`)
+    );
+    expect(newTransaction.buycoin).toEqual(false);
+
+    const upPayer = await User.findByIdAndUpdate(
+      { _id: user._id },
+      {
+        $inc: { moneyoutcoins: -infosTransaction.amount },
+        $push: { transactions: newTransaction._id },
+      },
+      { new: true }
+    );
+    // talvez não precisasse disso, mas como o _id do newTransaction muda quando eu do um `findByIdAndUpdate` (não sei o pq ainda) e como eu queria testar se vem o _id certo eu preciso fazer isso
+    const newIdTransaction = upPayer?.transactions;
+    const subMoneyUser = user.moneyoutcoins - infosTransaction.amount;
+    expect(upPayer?.moneyoutcoins).toEqual(subMoneyUser);
+    expect(upPayer?.transactions).toEqual(newIdTransaction);
+
+    const upPayee = await User.findByIdAndUpdate(
+      { _id: newUser._id },
+      {
+        $inc: { moneyoutcoins: infosTransaction.amount },
+        $push: { transactions: newTransaction._id },
+      },
+      { new: true }
+    );
+    expect(upPayee?.moneyoutcoins).toEqual(infosTransaction.amount);
+    expect(upPayee?.transactions).toEqual(newIdTransaction);
   });
 });

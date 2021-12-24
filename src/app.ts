@@ -16,7 +16,7 @@ app.use(morgan('dev'));
 app.use(routes);
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+    return res.status(err.statusCode).json({
       status: 'error',
       message: err.message,
     });

@@ -25,12 +25,7 @@ const userSchema: Schema = new Schema<IUser>(
     password: { type: String, required: [true, 'please password'] },
     moneyoutcoins: { type: Number, default: 0 },
     moneyincoins: { type: Number },
-    totalcoins: [
-      {
-        coinid: { type: String },
-        namehashcoin: { type: String },
-      },
-    ],
+    totalcoins: [{ type: String, ref: 'wallet' }],
     transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
     ownerenterprise: [{ type: Schema.Types.ObjectId, ref: 'enterprise' }],
     employeeEnterprise: { type: Schema.Types.ObjectId, ref: 'enterprise' },

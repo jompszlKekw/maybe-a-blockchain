@@ -5,7 +5,7 @@ export interface IWallet extends Document {
   index: number;
   prevHash: Array<string>;
   hash: string;
-  currentowner: string | Schema.Types.ObjectId;
+  currentowner: string;
   transactions: Array<string>;
   avaibleforpurchase: boolean;
   codingforbuy: string;
@@ -20,7 +20,7 @@ const walletSchema: Schema = new Schema<IWallet>(
     index: { type: Number, required: true, default: 0 },
     prevHash: [{ type: String, required: true, default: '0' }],
     hash: { type: String, required: true },
-    currentowner: { type: Schema.Types.ObjectId, required: true, ref: 'user' },
+    currentowner: { type: String, required: true, ref: 'user' },
     transactions: [{ type: Schema.Types.ObjectId, ref: 'transaction' }],
     avaibleforpurchase: { type: Boolean, required: true, default: false },
     codingforbuy: { type: String },

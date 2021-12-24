@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
-    "style": "prettier --write ./**/**/*.ts ",
+    "style": "prettier --write src/**/*.ts __tests__/**.ts ",
     "test": "jest --runInBand"
   },
   "dependencies": {

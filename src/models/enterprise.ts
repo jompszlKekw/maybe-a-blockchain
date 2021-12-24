@@ -39,6 +39,13 @@ const enterpriseSchema: Schema = new Schema<IEnterprise>(
     openforhiring: { type: Boolean, required: true, default: false },
   },
   {
+    toJSON: {
+      transform: (_, ret): void => {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
     timestamps: true,
   }
 );

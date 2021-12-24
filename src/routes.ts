@@ -44,7 +44,7 @@ routes.post('/createcoin', authUser, coinController.createCoinUser);
 
 routes.put('/mcafp', authUser, coinController.myCoinAvaibleForPurchase);
 routes.get('/searchcoin', authUser, coinController.searchCoinForPurchase);
-routes.put('/codingtransaction', authUser, coinController.bidCoin);
+routes.post('/codingtransaction', authUser, coinController.bidCoin);
 routes.get(
   '/seebidsonmycurrency',
   authUser,
