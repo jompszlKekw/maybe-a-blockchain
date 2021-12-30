@@ -9,6 +9,7 @@ import { IWallet, Wallet } from '../models/wallet';
 import { Enterprise } from '../models/enterprise';
 
 import { AppError } from '../config/AppErrors';
+import { GenerateCoinsUser } from '../util/generateCoins';
 
 type WT = {
   privatekey: string;
@@ -36,7 +37,6 @@ export class CoinController {
     const valuecoin = Math.floor(Math.random() * 100000);
 
     const objcoin = await CreatorCoin.find({ objectivecoin: objectivecoin });
-
     if (objcoin.length > 2)
       throw new AppError(
         'there are already many coins created for the same purpose'
@@ -53,190 +53,16 @@ export class CoinController {
       currentmarketvalue: valuecoin,
       createdAt: new Date(),
     });
-
     await newCoin.save();
 
     if (valuecoin > 50000) {
-      const qat: number = Math.floor(Math.random() * 20) + 3;
-
-      for (let i = 0; i < qat; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha512')
-          .update(`${anyupdate}` + i)
-          .digest('hex');
-
-        // const keypair = generateKeyPairSync('rsa', {
-        //   modulusLength: 2048,
-        //   publicKeyEncoding: { type: 'spki', format: 'pem' },
-        //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-        // })
-
-        const publicKey = createHash('sha512')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha512')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallet: HydratedDocument<IWallet> = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: req.user.id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-
-        await newWallet.save();
-
-        await User.findByIdAndUpdate(
-          { _id: req.user.id },
-          {
-            $push: {
-              totalcoins: newWallet._id,
-            },
-            $inc: { moneyincoins: newWallet.amount },
-          },
-          { new: true }
-        );
-      }
+      GenerateCoinsUser(20, 3, valuecoin, NameHash, req.user.id);
     } else if (valuecoin > 20000 || valuecoin < 50000) {
-      const qat: number = Math.floor(Math.random() * 40) + 15;
-
-      for (let i = 0; i < qat; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha512')
-          .update(`${anyupdate}` + i)
-          .digest('hex');
-
-        // const keypair = generateKeyPairSync('rsa', {
-        //   modulusLength: 2048,
-        //   publicKeyEncoding: { type: 'spki', format: 'pem' },
-        //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-        // })
-
-        const publicKey = createHash('sha512')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha512')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallet: HydratedDocument<IWallet> = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: req.user.id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-        await newWallet.save();
-
-        await User.findByIdAndUpdate(
-          { _id: req.user.id },
-          {
-            $push: {
-              totalcoins: newWallet._id,
-            },
-            $inc: { moneyincoins: newWallet.amount },
-          },
-          { new: true }
-        );
-      }
+      GenerateCoinsUser(40, 15, valuecoin, NameHash, req.user.id);
     } else if (valuecoin > 7500 || valuecoin < 20000) {
-      const qat: number = Math.floor(Math.random() * 80) + 30;
-
-      for (let i = 0; i < qat; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha512')
-          .update(`${anyupdate}` + i)
-          .digest('hex');
-
-        // const keypair = generateKeyPairSync('rsa', {
-        //   modulusLength: 2048,
-        //   publicKeyEncoding: { type: 'spki', format: 'pem' },
-        //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-        // })
-
-        const publicKey = createHash('sha512')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha512')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallet: HydratedDocument<IWallet> = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: req.user.id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-        await newWallet.save();
-
-        await User.findByIdAndUpdate(
-          { _id: req.user.id },
-          {
-            $push: {
-              totalcoins: newWallet._id,
-            },
-            $inc: { moneyincoins: newWallet.amount },
-          },
-          { new: true }
-        );
-      }
+      GenerateCoinsUser(80, 30, valuecoin, NameHash, req.user.id);
     } else {
-      const qat: number = Math.floor(Math.random() * 130) + 60;
-
-      for (let i = 0; i < qat; i++) {
-        const anyupdate = Math.random() * 9999999998;
-        const publick = Math.random() * 9999999997;
-        const privatek = Math.random() * 9999999996;
-
-        const hashCoin = createHash('sha512')
-          .update(`${anyupdate}` + i)
-          .digest('hex');
-
-        // const keypair = generateKeyPairSync('rsa', {
-        //   modulusLength: 2048,
-        //   publicKeyEncoding: { type: 'spki', format: 'pem' },
-        //   privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
-        // })
-
-        const publicKey = createHash('sha512')
-          .update(`${publick}`)
-          .digest('hex');
-        const privateKey = createHash('sha512')
-          .update(`${privatek}`)
-          .digest('hex');
-
-        const newWallet: HydratedDocument<IWallet> = new Wallet({
-          amount: valuecoin,
-          hash: `${NameHash}.${hashCoin}`,
-          currentowner: req.user.id,
-          publickey: publicKey,
-          privatekey: privateKey,
-        });
-        await newWallet.save();
-
-        await User.findByIdAndUpdate(
-          { _id: req.user.id },
-          {
-            $push: {
-              totalcoins: newWallet._id,
-            },
-            $inc: { moneyincoins: newWallet.amount },
-          },
-          { new: true }
-        );
-      }
+      GenerateCoinsUser(130, 60, valuecoin, NameHash, req.user.id);
     }
 
     return res.status(201).json({ msg: 'create coin success', newCoin });
